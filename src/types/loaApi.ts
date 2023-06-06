@@ -83,3 +83,11 @@ export type marketItem = {
     RecentPrice: number,
     CurrentMinPrice: number
 }
+
+export type recipe = {
+    itemName: string;
+    materials: {
+        materialName: string;
+        materialCount: number;
+    }[];
+}

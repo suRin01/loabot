@@ -1,0 +1,167 @@
+
+/*
+생선
+들꽃
+두툼한 생고기
+고고학의 결정
+오레하 유물
+고대 유물
+목재
+오레하 두툼한 생고기
+튼튼한 목재
+수렵의 결정
+투박한 버섯
+낚시의 결정
+오레하 태양 잉어
+다듬은 생고기
+철광석
+질긴 가죽
+단단한 철광석
+희귀한 유물
+부드러운 목재
+칼다르 두툼한 생고기
+붉은 살 생선
+자연산 진주
+화사한 들꽃
+싱싱한 버섯
+수줍은 들꽃
+화려한 버섯
+묵직한 철광석
+칼다르 유물
+칼다르 태양 잉어
+*/
+
+
+
+//recipe list extractor
+let recipeList = [];
+document.querySelector("#lostarkDb > div.lostark.db_board.db_craft > table > tbody").querySelectorAll("tr:not(.noResult)").forEach((trNode)=>{
+    let isExist = false;
+    recipeList.forEach((recipe)=>{
+        if(recipe.itemName === trNode.querySelector("a.name").text){
+            console.log(recipe.itemName, trNode.querySelector("a.name").text)
+            isExist = true;
+        }
+    })
+
+    if(isExist){
+        return;
+    }
+    
+    let materialList = []
+    trNode.querySelectorAll(".material_list").forEach((material)=>{
+        const materialInfoArr = material.innerText.split("x");
+        materialList.push({
+            materialName: materialInfoArr[0].trim(),
+            materialCount: parseInt(materialInfoArr[1].trim())
+        })
+    })
+    const gold = trNode.querySelector("p.price.gold > span");
+    if(gold !== null){
+        materialList.push({
+            materialName: "골드",
+            materialCount: parseInt(gold.innerText.split("x")[1].trim())
+        })
+    }
+    recipeList.push({
+        itemName : trNode.querySelector("a.name").text,
+        materials: materialList
+    })
+})
+console.log("전체:")
+console.log(recipeList);
+console.log("빛나는템:")
+console.log(recipeList.filter(r => r.itemName.includes("빛나는")));
+console.log("안빛나는템:")
+console.log(recipeList.filter(r => !r.itemName.includes("빛나는")));
+
+
+
+//sepcial recipe list extractor
+let recipeList = [];
+document.querySelector("#lostarkDb > div.lostark.db_board.db_craft > table > tbody").querySelectorAll("tr:not(.noResult)").forEach((trNode)=>{
+    let isExist = false;
+        if(trNode.querySelector("a.name").text.includes("지도") || 
+            trNode.querySelector("a.name").text.includes("엘릭서") || 
+            trNode.querySelector("a.name").text.includes("칼다르") || 
+            trNode.querySelector("a.name").text.includes("로맨틱") || 
+            trNode.querySelector("a.name").text.includes("촉매") || 
+            trNode.querySelector("a.name").text.includes("신비한 돌")){
+            isExist = true;
+        }
+
+    if(isExist){
+        return;
+    }
+    
+    let materialList = []
+    trNode.querySelectorAll(".material_list").forEach((material)=>{
+        const materialInfoArr = material.innerText.split("x");
+        materialList.push({
+            materialName: materialInfoArr[0].trim(),
+            materialCount: parseInt(materialInfoArr[1].trim())
+        })
+    })
+    const gold = trNode.querySelector("p.price.gold > span");
+    if(gold !== null){
+        materialList.push({
+            materialName: "골드",
+            materialCount: parseInt(gold.innerText.split("x")[1].trim())
+        })
+    }
+    let itemName = trNode.querySelector("a.name").text
+    if(itemName.includes("융화 재료")){
+        if(materialList.some((item)=>{
+            if(item.materialName.includes("고기")){
+                return true;
+            }
+            return false;
+
+        })){
+            itemName += '(수렵)'
+        }else if(materialList.some((item)=>{
+            if(item.materialName.includes("잉어")){
+                return true;
+            }
+            return false;
+
+        })){
+            itemName += '(낚시)'
+        }else if(materialList.some((item)=>{
+            if(item.materialName.includes("유물")){
+                return true;
+            }
+            return false;
+
+        })){
+            itemName += '(고고학)'
+        }
+    }
+    recipeList.push({
+        itemName,
+        materials: materialList
+    })
+})
+console.log("전체:")
+console.log(recipeList);
+
+
+
+/*
+베템 : 일반 -> 3개씩 / 빛나는 -> 2개씩
+요리는 무조건 10개씩
+하급, 중급 오레하 30개, 상급 20개, 최상급 15개
+
+*/
+
+
+/*
+카테고리
+60000 전투용품(배템)
+90000 생활 재료
+50000 강화재료
+50010 재련 재료 -> 융화재료
+50020 재련 추가 재료
+51000 기타 재료
+
+*/

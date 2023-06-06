@@ -45,3 +45,32 @@ export const riceCalculator = (value: number) => {
             + "\n4인 입찰가: " + fourMemberParty.toFixed() + "골드\n4인 추천 입찰가: " + (fourMemberParty * 10 / 11 + 1).toFixed() + "골드"
     }]
 }
+
+
+export const chargeCalc = (price: number)=>{
+    if(price === 1){
+        return price
+    }else if(price * 0.05 <1){
+        return price-1
+    }else{
+        return price-Math.round(price * 0.05)
+    }
+}
+
+
+export const setStringLength = (text: string, size: number)=>{
+    let wordCount = 0;
+    Array.from(text).forEach((character)=>{
+        if(/[0-9|\s|\[\]\,|\.\-]/gm.test(character)){
+            wordCount += 1;
+        }else{
+            wordCount += 2;
+        }
+    })
+    let output = text;
+    for(let idx = 0; idx < size - wordCount; idx ++){
+        output += ' ';
+    }
+
+    return output;
+}

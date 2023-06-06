@@ -1,14 +1,14 @@
-import { msgStrings } from "./constants/strings";
+import { battleItemRecipeList, category, msgStrings } from "./constants/strings";
 import { messageTemplate } from "./types/messageTemplate";
-import { getTodayExportaionIsland, getUserSubCharacter, getWeeklyAbyssDungeouns, getWeeklyAbyssGuardians } from "./utils/axiosLostarkApi";
-import { argCheck, argNumCheck, riceCalculator } from "./utils/utils";
+import { dbStuffSearch, getMarkeFullPagetData, getMarketData, getTodayExportaionIsland, getUserSubCharacter, getWeeklyAbyssDungeouns, getWeeklyAbyssGuardians, itemCraftPrinceing, persistMarketData } from "./utils/axiosLostarkApi";
+import { argCheck, argNumCheck, riceCalculator, setStringLength } from "./utils/utils";
 
 export const functionSwithcer = async (msg: string, arg: string | undefined = undefined): Promise<messageTemplate[] | undefined> => {
     switch (msg) {
         case '명령어': {
             return [{
                 "type": "text",
-                "body": ">프로키온\n>도가토\n>도비스\n>ㅂㅂㄱ\n>부캐 _캐릭터명_",
+                "body": "+프로키온\n+도가토\n+도비스\n+ㅂㅂㄱ\n+부캐 _캐릭터명_\n+배탬\n+특수\n+음식\n+재료",
             }]
         }
         case '프로키온': {
@@ -72,6 +72,60 @@ export const functionSwithcer = async (msg: string, arg: string | undefined = un
         case '쌀값': {
 
             break;
+        }
+        case '재료': {
+           const value = await dbStuffSearch(category.ingreItem);
+           let responseText = `오늘의 제작 재료 가격\n`;
+           value.forEach((item)=>{
+                responseText += `\n${item.name}(${item.bundleCount}개): ${item.current_price}골드`
+            })
+            return [{
+                "type": "text",
+                "body": responseText,
+            },]
+        }
+        case '재료저장': {
+            await persistMarketData(90000);
+            await persistMarketData(70000);
+            await persistMarketData(60000);
+            await persistMarketData(50000, null, "현자의 가루");
+            return [{
+                "type": "text",
+                "body": "ok",
+            },]
+        }
+        case '배탬': {
+            const value = await itemCraftPrinceing(category.battleItem);
+            let responseText = `오늘의 가격\n`;
+            value.forEach((item)=>{
+                responseText += `\n${item.name}\n - 경매장가: ${item.marketPrice}골드, 개당 제작가: ${item.craftCost}골드, 개당 이득: ${item.profit}골드`
+            })
+            return [{
+                "type": "text",
+                "body": responseText,
+            },]
+        }
+        case '음식': {
+            const value = await itemCraftPrinceing(category.food);
+            let responseText = `오늘의 가격\n`;
+            value.forEach((item)=>{
+                responseText += `\n${item.name}\n - 경매장가: ${item.marketPrice}골드, 개당 제작가: ${item.craftCost}골드, 개당 이득: ${item.profit}골드`
+            })
+            return [{
+                "type": "text",
+                "body": responseText,
+            },]
+        }
+        case '특수': {
+            const value = await itemCraftPrinceing(category.enforceItem);
+            let responseText = `오늘의 가격\n`;
+            value.forEach((item)=>{
+                responseText += `\n${item.name}\n - 경매장가: ${item.marketPrice}골드, 개당 제작가: ${item.craftCost}골드, 개당 이득: ${item.profit}골드`
+            })
+            return [{
+                "type": "text",
+                "body": responseText,
+            },]
         }
         case '아바타': {
 

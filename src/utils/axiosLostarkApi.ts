@@ -1,9 +1,12 @@
 import 'dotenv/config'
 
 import { loaApiUrls } from "../constants/urls";
-import { abyssDungeons, abyssGuardians, calenderEvent, characterPerServer, marketStructure, simpleIslandEvent } from "../types/loaApi";
+import { abyssDungeons, abyssGuardians, calenderEvent, characterPerServer, marketStructure, recipe, simpleIslandEvent } from "../types/loaApi";
 import axios from 'axios';
-import { isToday } from './utils';
+import { chargeCalc, isToday } from './utils';
+import { marketItem } from '../types/loaApi'; 
+import { PrismaClient, stuff_price } from '@prisma/client';
+import { basedItemRecipeList, battleItemRecipeList, category, foodItemRecipeList, specialItemRecipeList } from '../constants/strings';
 
 export const getUserSubCharacter = async (username: string): Promise<characterPerServer[] | undefined> => {
     return await axios
@@ -126,14 +129,14 @@ export const getWeeklyAbyssDungeouns = async ()=>{
 }
 
 
-export const getMarketData = async (categoryCode: number, itemGrade: string | null = null, pageNo : number = 0, sort:string = "DESC")=>{
+export const getMarketData = async (categoryCode: number, itemGrade: string | null = null, pageNo : number = 1, sort:string = "DESC", itemName: string | null = null)=>{
     const searchParam = {
         "Sort": "CURRENT_MIN_PRICE ",
         "CategoryCode": categoryCode,
         "CharacterClass": "",
         "ItemTier": null,
         "ItemGrade": itemGrade,
-        "ItemName": null,
+        "ItemName": itemName,
         "PageNo": pageNo,
         "SortCondition": sort
       }
@@ -146,5 +149,131 @@ export const getMarketData = async (categoryCode: number, itemGrade: string | nu
     });
 
     return marketData;
+}
 
+export const getMarkeFullPagetData = async (categoryCode: number, itemGrade: string | null = null, sort:string = "DESC", itemName: string | null = null): Promise<marketItem[]> =>{
+    const firstPage = await getMarketData(categoryCode, itemGrade, 1, sort);
+    if(firstPage.TotalCount <= firstPage.PageSize){
+        return firstPage.Items;
+    }
+
+    const totalPage = Math.trunc(firstPage.TotalCount / firstPage.PageSize) + 1;
+    let totalPageList:marketItem[] = firstPage.Items;
+    for(let idx = 2 ; idx <= totalPage ; idx ++){
+        const tempPage = await getMarketData(categoryCode, itemGrade, idx, sort);
+        totalPageList = totalPageList.concat(tempPage.Items);
+    }
+    
+
+
+    return totalPageList;
+
+}
+
+export const persistMarketData = async(categoryCode: number, itemGrade: string | null = null, itemName: string | null = null)=>{
+    const itemList = await getMarkeFullPagetData(categoryCode, itemGrade, "DESC", itemName);
+
+    const prisma = new PrismaClient();
+    await prisma.stuff_price.createMany({
+        data: itemList.map((item)=>{
+            return {
+                name: item.Name,
+                bundleCount: item.BundleCount,
+                previous_day_avg: item.YDayAvgPrice,
+                current_price: item.CurrentMinPrice,
+                input_id: "cron",
+                category: categoryCode,
+            }
+        })
+    })
+
+    return true;
+}
+
+
+export const dbStuffSearch = async(categort:number)=>{
+    const today = new Date();
+    const prisma = new PrismaClient();
+    const stuffList = await prisma.stuff_price.findMany({
+        where:{
+            category:{
+                equals: categort
+            }
+        }
+    })
+
+
+    return stuffList;
+}
+
+
+export const itemCraftPrinceing = async(categoryCode:number)=>{
+    let recipeList:recipe []= [];
+    let marketData:stuff_price[] = [];
+    let craftBundleCount = 0;
+    
+    const stuffData = await dbStuffSearch(category.ingreItem);
+    const priceMap: Record<string, number> = {"골드": 1};
+    const bundleMap: Record<string, number> = {"골드": 1};
+
+    if(categoryCode === category.battleItem){
+        recipeList = battleItemRecipeList;
+        marketData = await dbStuffSearch(category.battleItem);
+        craftBundleCount = 3;
+    }else if(categoryCode === category.food){
+        recipeList = foodItemRecipeList
+        marketData = await dbStuffSearch(category.food);
+        craftBundleCount = 1;
+    }else if(categoryCode === category.enforceItem){
+        recipeList = specialItemRecipeList
+        marketData = await dbStuffSearch(category.enforceItem);
+        craftBundleCount = 1;
+        priceMap["현자의 돌"] = 0;
+        bundleMap["현자의 돌"] = 1;
+    }
+
+    stuffData.forEach((item)=>{
+        priceMap[item.name] = item.current_price;
+        bundleMap[item.name] = item.bundleCount;
+    });
+
+    const marketDataMap: Record<string, number> = {};
+    marketData.forEach((item)=>{
+        marketDataMap[item.name] = item.current_price;
+    });
+
+    return recipeList.map((recipe)=>{
+        let craftCost = 0;
+        let itemName = recipe.itemName;
+        if(categoryCode === category.enforceItem){
+            itemName = itemName.replace(/(\(.*\))/i, '')
+            craftBundleCount = 1;
+            if(itemName.startsWith("하급") || itemName.startsWith("중급")){
+                craftBundleCount = 30;
+            }else if(itemName.startsWith("상급")){
+                craftBundleCount = 20;
+            }else if(itemName.startsWith("최상")){
+                craftBundleCount = 15;
+            }
+        }
+        recipe.materials.forEach((item)=>{
+            const bundlePrice = priceMap[item.materialName]
+            const bundleCount = bundleMap[item.materialName]
+            if(bundleCount === undefined || bundlePrice === undefined){
+                throw new Error("cannot find base item");
+            }
+            const pricePerItem = bundlePrice / bundleCount;
+            craftCost += pricePerItem * item.materialCount;
+        })
+
+        console.log(`${recipe.itemName}, ${marketDataMap[itemName]}, ${craftBundleCount}, ${craftCost}, ${chargeCalc(marketDataMap[itemName])}`)
+
+        return {
+            name: recipe.itemName,
+            marketPrice: marketDataMap[itemName],
+            craftCost: (craftCost / craftBundleCount).toFixed(3),
+            profit: (chargeCalc(marketDataMap[itemName]) - craftCost/craftBundleCount).toFixed(3)
+        }
+        
+    })
 }

@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model character {
+  character_idx     Int                 @id @default(autoincrement())
+  user_idx          Int
+  guild_idx         Int?
+  name              String              @db.VarChar(50)
+  is_main_character String?             @db.VarChar(1)
+  guild             guild?              @relation(fields: [guild_idx], references: [guild_idx], onDelete: Restrict, onUpdate: Restrict, map: "FK_guild_TO_character_1")
+  user              user                @relation(fields: [user_idx], references: [user_idx], onUpdate: Restrict, map: "FK_user_TO_character_1")
+  crawled_character crawled_character[]
+  raid_apply        raid_apply[]
+
+  @@index([guild_idx], map: "FK_guild_TO_character_1")
+  @@index([user_idx], map: "FK_user_TO_character_1")
+}
+
+model common_bbs {
+  bbs_idx            Int                  @id @default(autoincrement())
+  bbs_name           String               @db.VarChar(100)
+  bbs_detail_code    String               @db.VarChar(30)
+  bbs_own_guild      Int
+  input_id           String               @db.VarChar(50)
+  input_dt           DateTime             @default(now()) @db.Date
+  update_id          String?              @db.VarChar(50)
+  update_dt          DateTime?            @db.Date
+  is_deleted         String?              @db.VarChar(1)
+  delete_dt          DateTime?            @db.Date
+  common_bbs_article common_bbs_article[]
+}
+
+model common_bbs_article {
+  article_idx      Int                @id @default(autoincrement())
+  bbs_idx          Int
+  article_code     String             @db.VarChar(30)
+  title            String             @db.VarChar(30)
+  content          String             @db.VarChar(2000)
+  file_id          Int?
+  input_id         String             @db.VarChar(50)
+  input_dt         DateTime           @default(now()) @db.Date
+  update_id        String?            @db.VarChar(50)
+  update_dt        DateTime?          @db.Date
+  is_deleted       String?            @db.VarChar(1)
+  delete_dt        DateTime?          @db.Date
+  user             user               @relation(fields: [input_id], references: [user_name], onUpdate: Restrict, map: "FK_article_TO_user_1")
+  common_bbs       common_bbs         @relation(fields: [bbs_idx], references: [bbs_idx], onUpdate: Restrict, map: "FK_common_bbs_TO_common_bbs_article_1")
+  common_bbs_reply common_bbs_reply[]
+
+  @@index([input_id], map: "FK_article_TO_user_1")
+  @@index([bbs_idx], map: "FK_common_bbs_TO_common_bbs_article_1")
+}
+
+model common_bbs_reply {
+  reply_idx          Int                @id @default(autoincrement())
+  article_idx        Int
+  upper_reply_idx    Int?
+  content            String             @db.VarChar(2000)
+  input_id           String             @db.VarChar(50)
+  input_dt           DateTime           @default(now()) @db.Date
+  update_id          String?            @db.VarChar(50)
+  update_dt          DateTime?          @db.Date
+  is_deleted         String?            @db.VarChar(1)
+  delete_dt          DateTime?          @db.Date
+  common_bbs_article common_bbs_article @relation(fields: [article_idx], references: [article_idx], onUpdate: Restrict, map: "FK_common_bbs_article_TO_common_bbs_reply_1")
+
+  @@index([article_idx], map: "FK_common_bbs_article_TO_common_bbs_reply_1")
+}
+
+model common_code {
+  detail_code_idx   Int               @id @default(autoincrement())
+  code_group_idx    Int
+  detail_code       String            @db.VarChar(30)
+  code_value        String            @db.VarChar(30)
+  input_id          String            @db.VarChar(50)
+  input_dt          DateTime          @default(now()) @db.Date
+  update_id         String?           @db.VarChar(50)
+  update_dt         DateTime?         @db.Date
+  is_used           String?           @db.VarChar(1)
+  common_code_group common_code_group @relation(fields: [code_group_idx], references: [code_group_idx], onUpdate: Restrict, map: "FK_common_code_group_TO_common_code_1")
+
+  @@index([code_group_idx], map: "FK_common_code_group_TO_common_code_1")
+}
+
+model common_code_group {
+  code_group_idx  Int           @id @default(autoincrement())
+  code_group_name String        @db.VarChar(50)
+  input_id        String        @db.VarChar(50)
+  input_dt        DateTime      @default(now()) @db.Date
+  update_id       String?       @db.VarChar(50)
+  update_dt       DateTime?     @db.Date
+  is_used         String?       @db.VarChar(1)
+  common_code     common_code[]
+}
+
+model crawled_character {
+  crawled_idx   Int       @id @default(autoincrement())
+  character_idx Int
+  name          String    @db.VarChar(50)
+  server_code   String    @db.VarChar(30)
+  splty_code    String    @db.VarChar(30)
+  level         Int
+  character     character @relation(fields: [character_idx], references: [character_idx], onUpdate: Restrict, map: "FK_character_TO_crawled_character_1")
+
+  @@index([character_idx], map: "FK_character_TO_crawled_character_1")
+}
+
+model file {
+  file_idx       Int       @id @default(autoincrement())
+  file_name      String    @db.VarChar(500)
+  file_extension String    @db.VarChar(50)
+  file_path      String    @db.VarChar(2000)
+  input_id       String    @db.VarChar(50)
+  input_dt       DateTime  @default(now()) @db.Date
+  update_id      String?   @db.VarChar(50)
+  update_dt      DateTime? @db.Date
+  user           user[]
+}
+
+model guild {
+  guild_idx       Int         @id @default(autoincrement())
+  name            String      @db.VarChar(50)
+  guild_introduce String?     @db.VarChar(500)
+  guild_level     Int?
+  guild_icon      Int?
+  character       character[]
+  raid            raid[]
+}
+
+model menu {
+  menu_idx      Int           @id @default(autoincrement())
+  menu_name     String        @db.VarChar(200)
+  order         Int?
+  is_active     String        @default("N") @db.VarChar(1)
+  input_id      String        @db.VarChar(50)
+  input_dt      DateTime      @default(now()) @db.Date
+  update_id     String?       @db.VarChar(50)
+  update_dt     DateTime?     @db.Date
+  menu_describe String?       @db.VarChar(2000)
+  menu_detail   menu_detail[]
+}
+
+model menu_detail {
+  menu_detail_idx Int       @id @default(autoincrement())
+  menu_idx        Int
+  menu_name       String    @db.VarChar(50)
+  order           Int?
+  menu_href_url   String    @db.VarChar(200)
+  menu_describe   String?   @db.VarChar(2000)
+  is_active       String    @default("N") @db.VarChar(1)
+  input_id        String    @db.VarChar(50)
+  input_dt        DateTime  @default(now()) @db.Date
+  update_id       String?   @db.VarChar(50)
+  update_dt       DateTime? @db.Date
+  menu            menu      @relation(fields: [menu_idx], references: [menu_idx], onUpdate: Restrict, map: "FK_menu_TO_menu_detail_1")
+
+  @@index([menu_idx], map: "FK_menu_TO_menu_detail_1")
+}
+
+model raid {
+  raid_idx       Int           @id @default(autoincrement())
+  guild_idx      Int
+  raid_dt        DateTime      @db.Date
+  is_out_guild   String        @default("N") @db.VarChar(1)
+  raid_introduce String?       @db.VarChar(2000)
+  input_id       String?       @db.VarChar(50)
+  input_dt       DateTime?     @default(now()) @db.Date
+  update_id      String?       @db.VarChar(50)
+  update_dt      DateTime?     @db.Date
+  guild          guild         @relation(fields: [guild_idx], references: [guild_idx], onUpdate: Restrict, map: "FK_guild_TO_raid_1")
+  raid_apply     raid_apply[]
+  raid_target    raid_target[]
+
+  @@index([guild_idx], map: "FK_guild_TO_raid_1")
+}
+
+model raid_apply {
+  raid_apply_idx Int       @id @default(autoincrement())
+  character_idx  Int
+  raid_idx       Int
+  input_id       String    @db.VarChar(50)
+  input_dt       DateTime  @default(now()) @db.Date
+  upate_id       String?   @db.VarChar(50)
+  update_dt      DateTime? @db.Date
+  delete_id      String?   @db.VarChar(50)
+  delete_dt      DateTime? @db.Date
+  delete_claue   String?   @db.VarChar(50)
+  character      character @relation(fields: [character_idx], references: [character_idx], onUpdate: Restrict, map: "FK_character_TO_raid_apply_1")
+  raid           raid      @relation(fields: [raid_idx], references: [raid_idx], onUpdate: Restrict, map: "FK_raid_TO_raid_apply_1")
+
+  @@index([character_idx], map: "FK_character_TO_raid_apply_1")
+  @@index([raid_idx], map: "FK_raid_TO_raid_apply_1")
+}
+
+model raid_target {
+  raid_target_idx Int       @id @default(autoincrement())
+  raid_idx        Int
+  ligion_code     String    @db.VarChar(30)
+  input_id        String    @db.VarChar(50)
+  input_dt        DateTime  @default(now()) @db.Date
+  update_id       String?   @db.VarChar(50)
+  update_dt       DateTime? @db.Date
+  raid            raid      @relation(fields: [raid_idx], references: [raid_idx], onUpdate: Restrict, map: "FK_raid_TO_raid_target_1")
+
+  @@index([raid_idx], map: "FK_raid_TO_raid_target_1")
+}
+
+model role {
+  role_idx       Int             @id @default(autoincrement())
+  name           String          @db.VarChar(100)
+  upper_role_idx Int?
+  role           role?           @relation("roleTorole", fields: [upper_role_idx], references: [role_idx], onDelete: Restrict, onUpdate: Restrict, map: "FK_role_TO_role_1")
+  other_role     role[]          @relation("roleTorole")
+  role_relation  role_relation[]
+
+  @@index([upper_role_idx], map: "FK_role_TO_role_1")
+}
+
+model role_relation {
+  role_relation_idx Int  @id @default(autoincrement())
+  user_idx          Int
+  role_idx          Int
+  role              role @relation(fields: [role_idx], references: [role_idx], onUpdate: Restrict, map: "FK_role_TO_role_relation_1")
+  user              user @relation(fields: [user_idx], references: [user_idx], onUpdate: Restrict, map: "FK_user_TO_role_relation_1")
+
+  @@index([role_idx], map: "FK_role_TO_role_relation_1")
+  @@index([user_idx], map: "FK_user_TO_role_relation_1")
+}
+
+model stuff_price {
+  stuff_idx        Int      @id @default(autoincrement())
+  name             String   @db.VarChar(200)
+  bundleCount      Int
+  previous_day_avg Float    @db.Float
+  current_price    Float    @db.Float
+  input_dt         DateTime @default(now()) @db.Timestamp(0)
+  input_id         String   @db.VarChar(100)
+  category         Int      @db.UnsignedInt
+
+  @@index([stuff_idx], map: "stuff_price_stuff_idx_IDX")
+}
+
+model temp {
+  raid_target_idx Int       @id @default(autoincrement())
+  input_id        String?   @db.VarChar(50)
+  input_dt        DateTime? @default(now()) @db.Date
+  update_id       String?   @db.VarChar(50)
+  update_dt       DateTime? @db.Date
+}
+
+model user {
+  user_idx           Int                  @id @default(autoincrement())
+  user_name          String               @unique(map: "unique_user_id") @db.VarChar(50)
+  name               String               @db.VarChar(100)
+  password           String               @db.VarChar(200)
+  sex_dstn_code      String               @db.VarChar(1)
+  mobile_phone       String               @db.VarChar(200)
+  profile_img        Int?
+  character          character[]
+  common_bbs_article common_bbs_article[]
+  role_relation      role_relation[]
+  file               file?                @relation(fields: [profile_img], references: [file_idx], onDelete: Restrict, onUpdate: Restrict, map: "FK_user_profile_img_file_idx_1")
+
+  @@index([profile_img], map: "FK_user_profile_img_file_idx_1")
+}
