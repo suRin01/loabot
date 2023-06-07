@@ -152,7 +152,7 @@ export const getMarketData = async (categoryCode: number, itemGrade: string | nu
 }
 
 export const getMarkeFullPagetData = async (categoryCode: number, itemGrade: string | null = null, sort:string = "DESC", itemName: string | null = null): Promise<marketItem[]> =>{
-    const firstPage = await getMarketData(categoryCode, itemGrade, 1, sort);
+    const firstPage = await getMarketData(categoryCode, itemGrade, 1, sort, itemName);
     if(firstPage.TotalCount <= firstPage.PageSize){
         return firstPage.Items;
     }
@@ -160,7 +160,7 @@ export const getMarkeFullPagetData = async (categoryCode: number, itemGrade: str
     const totalPage = Math.trunc(firstPage.TotalCount / firstPage.PageSize) + 1;
     let totalPageList:marketItem[] = firstPage.Items;
     for(let idx = 2 ; idx <= totalPage ; idx ++){
-        const tempPage = await getMarketData(categoryCode, itemGrade, idx, sort);
+        const tempPage = await getMarketData(categoryCode, itemGrade, idx, sort, itemName);
         totalPageList = totalPageList.concat(tempPage.Items);
     }
     
@@ -193,9 +193,17 @@ export const persistMarketData = async(categoryCode: number, itemGrade: string |
 
 export const dbStuffSearch = async(categort:number)=>{
     const today = new Date();
+    const start = new Date(today);
+    start.setHours(0);
+    const end = new Date(today);
+    end.setHours(23);
     const prisma = new PrismaClient();
     const stuffList = await prisma.stuff_price.findMany({
         where:{
+            input_dt:{
+                gte: start,
+                lte: end
+            },
             category:{
                 equals: categort
             }

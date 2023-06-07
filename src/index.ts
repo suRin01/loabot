@@ -1,14 +1,7 @@
 import { UDPServer } from '@remote-kakao/core'
 import LoggerPlugin from './plugins/logger';
 import path from 'node:path';
-import { scheduleJob } from 'node-schedule';
-import { persistMarketData } from './utils/axiosLostarkApi';
 import { functionSwithcer } from './functions';
-
-scheduleJob("stuffApiCrawl", '0 1 * * *', async ()=>{
-    await persistMarketData(90000);
-})
-
 
 const prefix = '+';
 const server = new UDPServer({ serviceName: 'remote-kakao' });
