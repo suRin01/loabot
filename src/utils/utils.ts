@@ -74,3 +74,21 @@ export const setStringLength = (text: string, size: number)=>{
 
     return output;
 }
+
+export const weeklyProfitCalc = (itemLevel: number)=>{
+    
+}
+
+export const cookieParser = (cookieString: string): Record<string, string> => {
+    const a: Record<string, string> = {};
+    const cookies = cookieString.split(';')
+        .map(v => v.split('='))
+        .reduce((acc, v) => {
+            if (v[0] === '' || v[1] === undefined) {
+                return acc
+            }
+            acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+            return acc;
+        }, a);
+    return cookies;
+}

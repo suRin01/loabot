@@ -1,6 +1,8 @@
 import { battleItemRecipeList, category, msgStrings } from "./constants/strings";
-import { messageTemplate } from "./types/messageTemplate";
-import { dbStuffSearch, getMarkeFullPagetData, getMarketData, getTodayExportaionIsland, getUserSubCharacter, getWeeklyAbyssDungeouns, getWeeklyAbyssGuardians, itemCraftPrinceing, persistMarketData } from "./utils/axiosLostarkApi";
+import { characterInfo } from "./types/loaApi";
+import { kalinkCharacterData, messageTemplate } from "./types/messageTemplate";
+import { dbStuffSearch, getCharacterData, getMarkeFullPagetData, getMarketData, getTodayExportaionIsland, getUserSubCharacter, getWeeklyAbyssDungeouns, getWeeklyAbyssGuardians, itemCraftPrinceing, persistMarketData } from "./utils/axiosLostarkApi";
+import { sendKakaoLink } from "./utils/kakaoLink";
 import { argCheck, argNumCheck, riceCalculator, setStringLength } from "./utils/utils";
 
 export const functionSwithcer = async (msg: string, arg: string | undefined = undefined): Promise<messageTemplate[] | undefined> => {
@@ -49,25 +51,15 @@ export const functionSwithcer = async (msg: string, arg: string | undefined = un
             },]
         }
         case '각인서': {
+            const engravementList = await dbStuffSearch(category.engravement);
+            let responseText = `각인서 가격\n`;
+            engravementList.forEach((engravement)=>{
+                responseText += `\n${engravement.name}: ${engravement.current_price}골드`
+            })
             return [{
                 "type": "text",
-                "body": "각인서 답변 1",
-            }, {
-                "type": "text",
-                "body": "각인서 답변 2",
-            }]
-            break;
-        }
-        case '비싼전각': {
-            return [{
-                "type": "text",
-                "body": "비싼전각 답변 1",
-            }, {
-                "type": "text",
-                "body": "비싼전각 답변 2",
-            }]
-
-            break;
+                "body": responseText,
+            },]
         }
         case '쌀값': {
 
@@ -88,7 +80,8 @@ export const functionSwithcer = async (msg: string, arg: string | undefined = un
             await persistMarketData(90000);
             await persistMarketData(70000);
             await persistMarketData(60000);
-            await persistMarketData(50000, null, "현자의 가루");
+            await persistMarketData(50000);
+            await persistMarketData(40000, '전설');
             return [{
                 "type": "text",
                 "body": "ok",
@@ -132,7 +125,53 @@ export const functionSwithcer = async (msg: string, arg: string | undefined = un
             break;
         }
         case '정보': {
+            const value = argCheck(arg, msgStrings.generalArgError);
+            console.log(`start lookup ${arg} sibilings`)
+            if (typeof value !== 'string') {
+                console.log(msgStrings.generalArgError);
+                return value;
+            }
+            const info: characterInfo = await getCharacterData(value);
+            if(info === null){
+                return [{
+                    "type": "text",
+                    "body": "캐릭터 정보가 없습니다.",
+                },]
+            }
+        
+            const header        = `${info.ArmoryProfile.CharacterName}님의 캐릭터 정보`;
+            const title         = `${info.ArmoryProfile.CharacterClassName} / ${info.ArmoryProfile.ExpeditionLevel} / ${info.ArmoryProfile.TotalSkillPoint}`;
 
+            const thumnail      = info.ArmoryProfile.CharacterImage === null ? "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb77pWc%2Fbtr9Ox1B2fy%2F7XrjsZ2fc3tBI4s4U3WN1K%2Fimg.png" : info.ArmoryProfile.CharacterImage ;
+            const summary       = `${info.ArmoryProfile.ItemMaxLevel} / ${info.ArmoryEquipment === null ? "장비없음" : info.ArmoryEquipment[0].Name}`;
+            const statList      = info.ArmoryProfile.Stats === null ? "만들어만 둔 캐릭" : info.ArmoryProfile.Stats.filter(x=> ["치명", "특화", "신속"].includes(x.Type)).map(stat => `${stat.Type}: ${stat.Value}`).join(", ");
+
+            const summary_desc  = `레벨 / 무강`;
+            const summary_thu   = `https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcaOUT2%2Fbtr5BMWV9S8%2F8W7XK23Jti8G5kzy3ZPlv1%2Fimg.png`;
+            
+            const envList       = info.ArmoryEngraving === null ? "각인없음" : info.ArmoryEngraving.Effects.map(engrave => engrave.Name).join(", ");
+            const gemList       = info.ArmoryGem === null ? "보석없음" : info.ArmoryGem.Gems.map( gem=> gem.Level ).join(", ");
+            const tripodList    = info.ArmorySkills === null ? "스킬미장착" : info.ArmorySkills.filter(skill => skill.Level > 1).map(skill => skill.Tripods.filter(tripod => tripod.Level > 1)).flatMap(x => x).map(tripod=> tripod.Level).join(", ");
+            const description   = info.ArmoryCard === null ? "카드 미장착" : `${info.ArmoryCard.Effects[0].Items[info.ArmoryCard.Effects[0].Items.length-1].Name}: ${info.ArmoryCard.Effects[0].Items[info.ArmoryCard.Effects[0].Items.length-1].Description}`;
+
+            const templateArgs: kalinkCharacterData = {
+                thumnail,
+                header,
+                summary,
+                summary_desc,
+                summary_thu,
+                envList,
+                gemList,
+                tripodList,
+                statList,
+                title,
+                description,
+            };
+            return [{
+                "type": "kalink",
+                "body": "kalink",
+                kalinkData: templateArgs
+            },]
             break;
         }
         case '장비': {

@@ -1,9 +1,9 @@
 "use strict";
 Device.acquireWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, '');
-var scriptName = 'roabot';
+var scriptName = 'udpBot';
 var config = {
-    address: '192.168.137.1',
-    port: 5050,
+    address: '192.168.0.132',
+    port: 7050,
     packageNames: ['com.kakao.talk'],
     userIds: [0],
 };
@@ -21,6 +21,11 @@ var inPacket = new java.net.DatagramPacket(buffer, buffer.length);
 var replyActions = new Map();
 var profileImages = new Map();
 var roomIcons = new Map();
+
+const shareKakao = require("share.js");
+const Kakao = new shareKakao();
+Kakao.setPackage("com.kakao.talk", "10.2.3");
+
 function getBytes(str) {
     return new java.lang.String(str).getBytes();
 }
@@ -50,12 +55,15 @@ var receiveMessage = function (msg) {
     });
     switch (event) {
         case 'send_text':
+            Log.d(data.text, false);
+            // void 0 === undefined
             if (((_a = data.userId) === null || _a === void 0 ? void 0 : _a.toString()) &&
                 data.packageName &&
                 data.roomId &&
                 data.text) {
-                var action = (_d = (_c = (_b = replyActions
-                    .get(Number(data.userId))) === null || _b === void 0 ? void 0 : _b.get(data.packageName.toString())) === null || _c === void 0 ? void 0 : _c.get(data.roomId.toString())) === null || _d === void 0 ? void 0 : _d[1];
+                var action = (_d = (_c = (_b = replyActions.get(Number(data.userId))) === null || _b === void 0 ? void 0 : _b.get(data.packageName.toString())) === null || _c === void 0 ? void 0 : _c.get(data.roomId.toString())) === null || _d === void 0 ? void 0 : _d[1];
+                
+                
                 if (action) {
                     var intent = new android.content.Intent();
                     var bundle = new android.os.Bundle();
@@ -64,7 +72,7 @@ var receiveMessage = function (msg) {
                         var input = _r[_i];
                         bundle.putCharSequence(input.getResultKey(), data.text.toString());
                     }
-                    android.app.RemoteInput.addResultsToIntent(action.getRemoteInputs(), intent, bundle);
+                    android.app.RemoteInput.addResultsToIntent(remoteInputs, intent, bundle);
                     try {
                         action.actionIntent.send(Api.getContext(), 0, intent);
                         sendReply(true);
@@ -75,6 +83,21 @@ var receiveMessage = function (msg) {
                 }
             }
             sendReply(false);
+            break;
+        case 'kakao_link':
+            sendReply(true);
+            Log.d(data.text, false);
+            Log.d(data.roomId, false);
+            try {
+                Kakao.share(data.roomId, {
+                    type: 1,
+                    message: "example",
+                    attachment: {}
+                });
+            } catch (error) {
+                Log.e(error)
+            }
+
             break;
         case 'read':
             if (((_e = data.userId) === null || _e === void 0 ? void 0 : _e.toString()) && data.packageName && data.roomId) {
@@ -121,6 +144,7 @@ var thread = new java.lang.Thread({
         while (true) {
             socket.receive(inPacket);
             var message = decodeURIComponent(String(new java.lang.String(inPacket.getData(), inPacket.getOffset(), inPacket.getLength())));
+            Log.d(message);
             receiveMessage(message);
         }
     },
@@ -198,4 +222,20 @@ function onNotificationPosted(sbn) {
             com.xfl.msgbot.application.service.NotificationListener.Companion.setMarkAsRead(packageName, roomName, action);
         }
     }
+}
+
+
+
+
+/**
+ * (string) room
+ * (string) sender
+ * (boolean) isGroupChat
+ * (void) replier.reply(message)
+ * (boolean) replier.reply(room, message, hideErrorToast = false) // 전송 성공시 true, 실패시 false 반환
+ * (string) imageDB.getProfileBase64()
+ * (string) packageName
+ */
+function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+    
 }

@@ -1,12 +1,23 @@
 import 'dotenv/config'
 
 import { loaApiUrls } from "../constants/urls";
-import { abyssDungeons, abyssGuardians, calenderEvent, characterPerServer, marketStructure, recipe, simpleIslandEvent } from "../types/loaApi";
+import { abyssDungeons, abyssGuardians, calenderEvent, characterInfo, characterPerServer, marketStructure, recipe, simpleIslandEvent } from "../types/loaApi";
 import axios from 'axios';
 import { chargeCalc, isToday } from './utils';
 import { marketItem } from '../types/loaApi'; 
 import { PrismaClient, stuff_price } from '@prisma/client';
-import { basedItemRecipeList, battleItemRecipeList, category, foodItemRecipeList, specialItemRecipeList } from '../constants/strings';
+import { battleItemRecipeList, category, foodItemRecipeList, specialItemRecipeList } from '../constants/strings';
+
+export const getCharacterData = async (username: string): Promise<characterInfo>=>{
+        return await axios
+        .get<characterInfo>(`${loaApiUrls.baseUrl}${loaApiUrls.armory}${encodeURI(username)}`, {
+            headers: { authorization: `bearer ${process.env.loaApiKey}` },
+        })
+        .then((result)=>{
+            return result.data;
+        })
+}
+
 
 export const getUserSubCharacter = async (username: string): Promise<characterPerServer[] | undefined> => {
     return await axios
@@ -207,6 +218,9 @@ export const dbStuffSearch = async(categort:number)=>{
             category:{
                 equals: categort
             }
+        },
+        orderBy:{
+            current_price: "desc"
         }
     })
 

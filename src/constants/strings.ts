@@ -12,6 +12,7 @@ export const category = {
     food: 70000,
     ingreItem: 90000, 
     enforceItem: 50000,
+    engravement: 40000,
 
 }
 
