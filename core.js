@@ -1,8 +1,8 @@
 "use strict";
 Device.acquireWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, '');
-var scriptName = 'udpBot';
+var scriptName = 'udpbot';
 var config = {
-    address: '192.168.0.132',
+    address: '10.0.0.183',
     port: 7050,
     packageNames: ['com.kakao.talk'],
     userIds: [0],
@@ -22,9 +22,6 @@ var replyActions = new Map();
 var profileImages = new Map();
 var roomIcons = new Map();
 
-const shareKakao = require("share.js");
-const Kakao = new shareKakao();
-Kakao.setPackage("com.kakao.talk", "10.2.3");
 
 function getBytes(str) {
     return new java.lang.String(str).getBytes();

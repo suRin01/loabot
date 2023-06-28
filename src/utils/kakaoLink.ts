@@ -1,11 +1,11 @@
 import { stringify } from "querystring";
-import { chatData, chatroomData, kalinkCharacterData, kalinkReqData } from "../types/messageTemplate";
+import { chatData, chatroomData, kalinkReqData } from "../types/messageTemplate";
 import { axiosWrapper } from "./axiosWrapper";
 import { cookieParser } from "./utils";
 import Cheerio from "cheerio";
 import NodeBuffer from 'buffer';
 
-export const sendKakaoLink = async (cookie:string, appKey: string, templateId: number, templateArgs: kalinkCharacterData, chatName:string): Promise<boolean>=>{
+export const sendKakaoLink = async <T>(cookie:string, appKey: string, templateId: number, templateArgs: T, chatName:string): Promise<boolean>=>{
     const kalinkCustomTemplate = {
         "link_ver": "4.0",
         "template_id": templateId,
@@ -78,6 +78,6 @@ export const sendKakaoLink = async (cookie:string, appKey: string, templateId: n
         receiver: NodeBuffer.Buffer.from(JSON.stringify(trgtChat)).toString('base64')
     }
 
-    const kalinkSendResult = await axiosWrapper("POST", baseURL + '/picker/send', `${cookie}_csrf=${parsedCookie["_csrf"]}`, stringify(finishRequest));
+    await axiosWrapper("POST", baseURL + '/picker/send', `${cookie}_csrf=${parsedCookie["_csrf"]}`, stringify(finishRequest));
     return true;
 }
