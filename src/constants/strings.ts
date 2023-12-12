@@ -1,8 +1,8 @@
-import { recipe } from "../types/loaApi"
+import { Recipe } from "../types/loaApi"
 
 export const msgStrings = {
     generalError : "에러가 발생했습니다. 담당자에게 문의해주세요",
-    generalArgError : "명령어에 매개변수가 필요합니다.\nex) >ㅂㅂㄱ 1234, >주급 캐릭터명",
+    generalArgError : "명령어에 매개변수가 필요합니다.\nex) ㅂㅂㄱ 1234, 주급 캐릭터명",
     argNumError: "올바른 숫자를 입력해주세요",
     charactorNotFound: "캐릭터를 찾을 수 없습니다",
 }
@@ -17,7 +17,7 @@ export const category = {
 }
 
 
-export const basedItemRecipeList:recipe[] = [
+export const basedItemRecipeList:Recipe[] = [
     {
         "itemName": "빛나는 도발 허수아비",
         "materials": [
@@ -411,7 +411,7 @@ export const basedItemRecipeList:recipe[] = [
     }
 ]
 
-export const battleItemRecipeList:recipe[] = [
+export const battleItemRecipeList:Recipe[] = [
     {
         "itemName": "섬광 수류탄",
         "materials": [
@@ -1145,7 +1145,7 @@ export const battleItemRecipeList:recipe[] = [
     }
 ]
 
-export const foodItemRecipeList:recipe[] = [
+export const foodItemRecipeList:Recipe[] = [
     {
         "itemName": "[일품] 장인의 노릇한 꼬치구이",
         "materials": [
@@ -1976,7 +1976,7 @@ export const foodItemRecipeList:recipe[] = [
     },
 ]
 
-export const specialItemRecipeList:recipe[] = [
+export const specialItemRecipeList:Recipe[] = [
     {
         "itemName": "현자의 가루",
         "materials": [

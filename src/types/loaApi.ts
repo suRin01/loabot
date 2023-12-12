@@ -1,30 +1,30 @@
-export interface simpleCharacterInfo {
+export interface SimpleCharacterInfo {
     name: string;
     classname: string;
     level: number;
 }
 
-export interface characterPerServer {
+export interface CharacterPerServer {
     serverName: string;
-    characterList: simpleCharacterInfo[]
+    characterList: SimpleCharacterInfo[]
 }
 
-export interface calenderEvent {
+export interface CalenderEvent {
     CategoryName: string;
     ContentsName: string;
     ContentsIcon: string;
     MinItemLevel: number,
     StartTimes: string[],
     Location: string;
-    RewardItems: rewardItem[]
+    RewardItems: RewardItem[]
 }
 
-export interface simpleIslandEvent {
+export interface SimpleIslandEvent {
     name: string;
     startTime: Date[];
     reward: string;
 }
-export interface abyssGuardians {
+export interface AbyssGuardians {
     Raids: {
         Name: string,
         Description: string,
@@ -38,13 +38,13 @@ export interface abyssGuardians {
     ,
     RewardItems: {
         ExpeditionItemLevel: number,
-        Items: rewardItem[]
+        Items: RewardItem[]
     }[]
 
 }
 
 
-export interface abyssDungeons {
+export interface AbyssDungeons {
     Name: string,
     Description: string,
     MinCharacterLevel: number,
@@ -53,10 +53,10 @@ export interface abyssDungeons {
     StartTime: string,
     EndTime: string,
     Image: string,
-    RewardItems: rewardItem[]
+    RewardItems: RewardItem[]
 }
 
-export interface rewardItem {
+export interface RewardItem {
     Name: string,
     Icon: string,
     Grade: string,
@@ -64,15 +64,46 @@ export interface rewardItem {
 }
 
 
-export interface marketStructure {
+export interface MarketStructure<T> {
     
   PageNo: number,
   PageSize: number,
   TotalCount: number,
-  Items: marketItem[]
+  Items: T[]
 }
 
-export interface marketItem {
+export interface AuctionItem {
+    Name: string,
+    Grade: string,
+    Tier: number,
+    Level: null,
+    Icon: string,
+    GradeQuality: null,
+    AuctionInfo: AuctionInfo,
+    Options: AuctionOptions[],
+}
+
+export interface AuctionInfo {
+    StartPrice: number,
+    BuyPrice: number,
+    BidPrice: number,
+    EndDate: string,
+    BidCount: number,
+    BidStartPrice: number,
+    IsCompetitive: boolean,
+    TradeAllowCount: number,
+}
+
+export interface AuctionOptions {
+    Type: string,
+    OptionName: string,
+    OptionNameTripod: string,
+    Value: number,
+    IsPenalty: boolean,
+    ClassName: string,
+}
+
+export interface MarketItem {
     Id: number,
     Name: string,
     Grade: string,
@@ -84,7 +115,7 @@ export interface marketItem {
     CurrentMinPrice: number
 }
 
-export interface recipe {
+export interface Recipe {
     itemName: string;
     materials: {
         materialName: string;
@@ -93,16 +124,16 @@ export interface recipe {
 }
 
 
-export interface characterInfo {
-    ArmoryProfile	: profile;
-	ArmoryEquipment	: equipment[];
-	ArmoryAvatars	: avatar[];
-	ArmorySkills	: skill[];
-	ArmoryEngraving	: engraving;
+export interface CharacterInfo {
+    ArmoryProfile	: Profile;
+	ArmoryEquipment	: Equipment[];
+	ArmoryAvatars	: Avatar[];
+	ArmorySkills	: Skill[];
+	ArmoryEngraving	: Engraving;
 	ArmoryCard		: cards;
-	ArmoryGem		: equipGems;
-	ColosseumInfo	: colosseumInfo;
-	Collectibles	: collectible[];
+	ArmoryGem		: EquipGems;
+	ColosseumInfo	: ColosseumInfo;
+	Collectibles	: Collectible[];
 
 }
 export interface CollectiblePoint {
@@ -111,7 +142,7 @@ export interface CollectiblePoint {
     MaxPoint	:	number;
 
 }
-export interface collectible {
+export interface Collectible {
     interface	    :	string;
     Icon	    :	string;
     Point	    :	number;
@@ -120,7 +151,7 @@ export interface collectible {
 
 }
 
-export interface coloseum {
+export interface Coloseum {
     SeasonName	    :	string | null;
     Competitive	    :	string | null;
     TeamDeathmatch	:	string | null;
@@ -129,20 +160,20 @@ export interface coloseum {
     CoOpBattle	    :	string | null;
 
 }
-export interface colosseumInfo {
+export interface ColosseumInfo {
     Rank	:	number;
     PreRank	:	number;
     Exp    	:	number;
-	Colosseums : coloseum[];
+	Colosseums : Coloseum[];
 
 }
 
-export interface equipGems {
-    Gems: gem[];
-    Effects: gemDescription[];
+export interface EquipGems {
+    Gems: Gem[];
+    Effects: GemDescription[];
 }
 
-export interface gem {
+export interface Gem {
     Slot	:	number;
     Name	:	string;
     Icon	:	string;
@@ -151,7 +182,7 @@ export interface gem {
     Tooltip	:	string;
 }
 
-export interface gemDescription {
+export interface GemDescription {
     GemSlot	    :	number;
     Name	    :	string;
     Description	:	string;
@@ -159,13 +190,13 @@ export interface gemDescription {
     Tooltip	    :   string;
 }
 
-export interface effect {
+export interface Effect {
     Index	    : number;
     CardSlots	: number[];
-    Items		: nameDescription[];
+    Items		: NameDescription[];
 
 }
-export interface card {
+export interface Card {
     Slot	    :	number;
     Name	    :	string;
     Icon	    :	string;
@@ -175,43 +206,43 @@ export interface card {
     Tooltip	    :	string;
     }
 export interface cards {
-    Cards : card [];
-    Effects : effect[];
+    Cards : Card [];
+    Effects : Effect[];
 }
-export interface nameDescription {
+export interface NameDescription {
     Name	    :	string;
     Description	:	string;
 }
-export interface attachEngrave {
+export interface AttachEngrave {
     Slot	: number;
     Name	: string;
     Icon	: string;
     Tooltip	: string;
 }
 
-export interface engraving {
-    Engravings : attachEngrave[];
-    Effects : nameDescription[];
+export interface Engraving {
+    Engravings : AttachEngrave[];
+    Effects : NameDescription[];
 }
 
-export interface skill {
+export interface Skill {
     Name	: string;
     Icon	: string;
     Level	: number;
     interface	: string;
     IsAwakening	:	boolean
-	Tripods	: tripod[]
-    Rune	: rune | null
+	Tripods	: Tripod[]
+    Rune	: Rune | null
     Tooltip	: string;
 
 }
-export interface rune {
+export interface Rune {
     Name	: string;
     Icon	: string;
     Grade	: string;
     Tooltip	: string;
 }
-export interface tripod {
+export interface Tripod {
     Tier	    : number;
     Slot	    : number;
     Name	    : string;
@@ -221,9 +252,9 @@ export interface tripod {
     Tooltip	    : string;
 }
 
-export interface profile {
-    Stats		        :   typeValueWithTooltip[];
-    Tendencies		    :   typeValueWithMaxpoint[];
+export interface Profile {
+    Stats		        :   TypeValueWithTooltip[];
+    Tendencies		    :   TypeValueWithMaxpoint[];
     CharacterImage	    :	string;
     PvpGradeName	    :	string;
     TownName	        :	string;
@@ -242,27 +273,27 @@ export interface profile {
     ItemMaxLevel	    :	number;
 
 }
-interface typeValueWithMaxpoint extends typeValue {
+interface TypeValueWithMaxpoint extends TypeValue {
     MaxPoint: number    
 }
-interface typeValueWithTooltip extends typeValue {
+interface TypeValueWithTooltip extends TypeValue {
     Tooltips: string[]
 }
 
-export interface typeValue {
+export interface TypeValue {
     Type: string;
     Value: number;
 }
 
-export interface equipment{
-    interface	: string;
+export interface Equipment{
+    Type	: string;
     Name	: string;
     Icon	: string;
     Grade	: string;
     Tooltip : string;
 }
 
-export interface avatar {
+export interface Avatar {
     interface	: string;
     Name	: string;
     Icon	: string;

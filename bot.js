@@ -1,31 +1,79 @@
-const scriptName = "당직봇";
-/**
- * (string) room
- * (string) sender
- * (boolean) isGroupChat
- * (void) replier.reply(message)
- * (boolean) replier.reply(room, message, hideErrorToast = false) // 전송 성공시 true, 실패시 false 반환
- * (string) imageDB.getProfileBase64()
- * (string) packageName
- */
-function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
-    
+
+Device.acquireWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, '');
+const scriptName = 'tcpBot';
+const config = {
+    address: '192.168.0.132',
+    port: 7050,
+    packageNames: ['com.kakao.talk'],
+    userIds: [0],
+};
+
+
+
+
+function onNotificationPosted(sbn) {
+    //set up tcp client
+    var socket = new java.net.Socket(config.address, config.port);
+    var input = socket.getInputStream();
+    var output = socket.getOutputStream();
+    var reader = new java.io.BufferedReader(new java.io.InputStreamReader(input));
+    var writer = new java.io.PrintWriter(output, true);
+    if(socket === null || input === null || output === null || writer === null ){
+        Log.d("소켓 생성 중 에러 발생.")
+        return;
+    }
+
+
+    const packageName                   = sbn.getPackageName();
+    const userId                        = sbn.getUser().hashCode();
+    if (!config.packageNames.includes(packageName) || !config.userIds.includes(userId))
+        return;
+    const noti                          = sbn.getNotification();
+    const actions                       = noti.actions;
+    const bundle                        = noti.extras;
+    if (!actions ||!bundle ||
+        bundle.getString('android.template') !== 'android.app.Notification$MessagingStyle')
+        return;
+    const senderName                    = bundle.getString('android.title');
+    const bundleSubText                 = bundle.getString('android.subText')
+    const bundleSubTextorSummaryText    = bundleSubText !== null && bundleSubText !== undefined ? bundleSubText : bundle.getString('android.summaryText');
+    const roomName                      = bundleSubTextorSummaryText !== null && bundleSubTextorSummaryText !== undefined ? bundleSubTextorSummaryText : senderName;
+    const androidText                   = bundle.get('android.text');
+    const content                       = androidText.toString();
+    const containsMention               = androidText instanceof android.text.SpannableString;
+    const isGroupChat                   = bundle.getBoolean('android.isGroupConversation');
+    const messageBundle                 = bundle.getParcelableArray('android.messages')[0];
+    const senderPerson                  = messageBundle.get('sender_person');
+    const senderHash                    = senderPerson.getKey();
+    const time                          = messageBundle.getLong('time');
+    const roomId                        = sbn.getTag();
+    const logId                         = java.lang.Long.toString(bundle.getLong('chatLogId'));
+    const chatData = {
+        appData:{
+            packageName: packageName,
+            userId: userId,
+        },
+        chatData:{
+            roomName: roomName,
+            roomId: roomId,
+            senderName: senderName,
+            senderHash: senderHash,
+            bundleSubText: bundleSubText,
+            bundleSubTextorSummaryText: bundleSubTextorSummaryText,
+            containsMention: containsMention,
+            isGroupChat: isGroupChat,
+            content: content,
+            time: time,
+
+        },
+        logId: logId,
+
+    }
+
+    writer.println(JSON.stringify(chatData));
+    var line = reader.readLine();
+    Log.d(line);
+
+
+    socket.close();
 }
-
-
-
-//아래 4개의 메소드는 액티비티 화면을 수정할때 사용됩니다.
-function onCreate(savedInstanceState, activity) {
-    var textView = new android.widget.TextView(activity);
-    textView.setText("Hello, World!");
-    textView.setTextColor(android.graphics.Color.DKGRAY);
-    activity.setContentView(textView);
-}
-
-function onStart(activity) { }
-
-function onResume(activity) { }
-
-function onPause(activity) { }
-
-function onStop(activity) { }

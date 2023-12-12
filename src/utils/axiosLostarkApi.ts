@@ -1,16 +1,16 @@
 import 'dotenv/config'
 
 import { loaApiUrls } from "../constants/urls";
-import { abyssDungeons, abyssGuardians, calenderEvent, characterInfo, characterPerServer, marketStructure, recipe, simpleIslandEvent } from "../types/loaApi";
+import { AuctionItem, AbyssDungeons, AbyssGuardians, CalenderEvent, CharacterInfo, CharacterPerServer, MarketStructure, Recipe, SimpleIslandEvent } from "../types/loaApi";
 import axios from 'axios';
 import { chargeCalc, isToday } from './utils';
-import { marketItem } from '../types/loaApi'; 
+import { MarketItem } from '../types/loaApi'; 
 import { PrismaClient, stuff_price } from '@prisma/client';
 import { battleItemRecipeList, category, foodItemRecipeList, specialItemRecipeList } from '../constants/strings';
 
-export const getCharacterData = async (username: string): Promise<characterInfo>=>{
+export const getCharacterData = async (username: string): Promise<CharacterInfo>=>{
         return await axios
-        .get<characterInfo>(`${loaApiUrls.baseUrl}${loaApiUrls.armory}${encodeURI(username)}`, {
+        .get<CharacterInfo>(`${loaApiUrls.baseUrl}${loaApiUrls.armory}${encodeURI(username)}`, {
             headers: { authorization: `bearer ${process.env.loaApiKey}` },
         })
         .then((result)=>{
@@ -19,15 +19,56 @@ export const getCharacterData = async (username: string): Promise<characterInfo>
 }
 
 
-export const getUserSubCharacter = async (username: string): Promise<characterPerServer[] | undefined> => {
+export const getAuctionData = async (itemName: string, itemCode: number, sortType: string):Promise<MarketStructure<AuctionItem>>=>{
+    const marketData: MarketStructure<AuctionItem> =  await axios
+        .post(loaApiUrls.auction, {
+            "ItemLevelMin": 0,
+            "ItemLevelMax": 0,
+            "ItemGradeQuality": null,
+            "SkillOptions": [
+              {
+                "FirstOption": null,
+                "SecondOption": null,
+                "MinValue": null,
+                "MaxValue": null
+              }
+            ],
+            "EtcOptions": [
+              {
+                "FirstOption": null,
+                "SecondOption": null,
+                "MinValue": null,
+                "MaxValue": null
+              }
+            ],
+            "Sort": sortType,
+            "CategoryCode": itemCode,
+            "CharacterClass": null,
+            "ItemTier": 3,
+            "ItemGrade": null,
+            "ItemName": itemName,
+            "PageNo": 0,
+            "SortCondition": "ASC"
+          }, {
+            headers: { authorization: `bearer ${process.env.loaApiKey}` }
+        })
+        .then((result)=>{
+            return result.data;
+        })
+
+        return marketData;
+}
+
+
+export const getUserSubCharacter = async (username: string): Promise<CharacterPerServer[] | undefined> => {
     return await axios
         .get(`${loaApiUrls.characterPrefix}${encodeURI(username)}${loaApiUrls.characterPostfix}`, {
             headers: { authorization: `bearer ${process.env.loaApiKey}` },
         })
         .then((results) => {
             if (Array.isArray(results.data)) {
-                let characterList: characterPerServer[] = [];
-                results.data.reduce((acc: characterPerServer[], cur) => {
+                let characterList: CharacterPerServer[] = [];
+                results.data.reduce((acc: CharacterPerServer[], cur) => {
                     let existServerCheck = false;
                     acc.forEach((serverList) => {
                         if (serverList.serverName === cur.ServerName) {
@@ -61,17 +102,17 @@ export const getUserSubCharacter = async (username: string): Promise<characterPe
         })
 }
 
-export const getTodayExportaionIsland = async ():Promise<simpleIslandEvent[]>  => {
-    const todayIslandList: calenderEvent[] = await axios
+export const getTodayExportaionIsland = async ():Promise<SimpleIslandEvent[]>  => {
+    const todayIslandList: CalenderEvent[] = await axios
         .get(loaApiUrls.weeklyCalender, {
             headers: { authorization: `bearer ${process.env.loaApiKey}` },
         })
         .then((results) => {
             return results.data
-                .filter((island: calenderEvent) => {
+                .filter((island: CalenderEvent) => {
                     if (island.CategoryName === "모험 섬") return island;
                 })
-                .filter((island: calenderEvent) => {
+                .filter((island: CalenderEvent) => {
                     let isTodayCheck = false;
                     island.StartTimes.forEach((startTime) => {
                         if (isToday(new Date(startTime))) {
@@ -81,9 +122,9 @@ export const getTodayExportaionIsland = async ():Promise<simpleIslandEvent[]>  =
                     if (isTodayCheck) return island;
                 })
         });
-    let result:simpleIslandEvent[] = [];
+    let result:SimpleIslandEvent[] = [];
     todayIslandList.forEach((event)=>{
-        let tempEventData:simpleIslandEvent = {
+        let tempEventData:SimpleIslandEvent = {
             name: event.ContentsName,
             reward: "",
             startTime: []
@@ -112,7 +153,7 @@ export const getTodayExportaionIsland = async ():Promise<simpleIslandEvent[]>  =
 }
 
 export const getWeeklyAbyssGuardians = async ()=>{
-    const weeklyAbyssGuardians: abyssGuardians = await axios
+    const weeklyAbyssGuardians: AbyssGuardians = await axios
     .get(loaApiUrls.weeklyAbyssGuardians, {
         headers: { authorization: `bearer ${process.env.loaApiKey}` },
     })
@@ -125,7 +166,7 @@ export const getWeeklyAbyssGuardians = async ()=>{
 
 
 export const getWeeklyAbyssDungeouns = async ()=>{
-    const weeklyAbyssDungeons: abyssDungeons[] = await axios
+    const weeklyAbyssDungeons: AbyssDungeons[] = await axios
     .get(loaApiUrls.weeklyAbyssDungeons, {
         headers: { authorization: `bearer ${process.env.loaApiKey}` },
     })
@@ -151,7 +192,7 @@ export const getMarketData = async (categoryCode: number, itemGrade: string | nu
         "PageNo": pageNo,
         "SortCondition": sort
       }
-    const marketData: marketStructure = await axios
+    const marketData: MarketStructure<MarketItem> = await axios
     .post(loaApiUrls.market, searchParam, {
         headers: { authorization: `bearer ${process.env.loaApiKey}` },
     })
@@ -162,14 +203,14 @@ export const getMarketData = async (categoryCode: number, itemGrade: string | nu
     return marketData;
 }
 
-export const getMarkeFullPagetData = async (categoryCode: number, itemGrade: string | null = null, sort:string = "DESC", itemName: string | null = null): Promise<marketItem[]> =>{
+export const getMarkeFullPagetData = async (categoryCode: number, itemGrade: string | null = null, sort:string = "DESC", itemName: string | null = null): Promise<MarketItem[]> =>{
     const firstPage = await getMarketData(categoryCode, itemGrade, 1, sort, itemName);
     if(firstPage.TotalCount <= firstPage.PageSize){
         return firstPage.Items;
     }
 
     const totalPage = Math.trunc(firstPage.TotalCount / firstPage.PageSize) + 1;
-    let totalPageList:marketItem[] = firstPage.Items;
+    let totalPageList:MarketItem[] = firstPage.Items;
     for(let idx = 2 ; idx <= totalPage ; idx ++){
         const tempPage = await getMarketData(categoryCode, itemGrade, idx, sort, itemName);
         totalPageList = totalPageList.concat(tempPage.Items);
@@ -202,7 +243,7 @@ export const persistMarketData = async(categoryCode: number, itemGrade: string |
 }
 
 
-export const dbStuffSearch = async(categort:number)=>{
+export const dbStuffSearch = async(categort:number, name: string | undefined = undefined)=>{
     const today = new Date();
     const start = new Date(today);
     start.setHours(0);
@@ -215,6 +256,10 @@ export const dbStuffSearch = async(categort:number)=>{
                 gte: start,
                 lte: end
             },
+            name: {
+                startsWith: name===undefined? undefined : `%${name}`
+            }
+            ,
             category:{
                 equals: categort
             }
@@ -230,7 +275,7 @@ export const dbStuffSearch = async(categort:number)=>{
 
 
 export const itemCraftPrinceing = async(categoryCode:number)=>{
-    let recipeList:recipe []= [];
+    let recipeList:Recipe []= [];
     let marketData:stuff_price[] = [];
     let craftBundleCount = 0;
     
@@ -287,8 +332,6 @@ export const itemCraftPrinceing = async(categoryCode:number)=>{
             const pricePerItem = bundlePrice / bundleCount;
             craftCost += pricePerItem * item.materialCount;
         })
-
-        console.log(`${recipe.itemName}, ${marketDataMap[itemName]}, ${craftBundleCount}, ${craftCost}, ${chargeCalc(marketDataMap[itemName])}`)
 
         return {
             name: recipe.itemName,

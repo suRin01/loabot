@@ -5,7 +5,7 @@ export const loaApiUrls = {
     weeklyAbyssGuardians: "https://developer-lostark.game.onstove.com/gamecontents/challenge-guardian-raids",
     weeklyCalender: "https://developer-lostark.game.onstove.com/gamecontents/calendar",
     market: "https://developer-lostark.game.onstove.com/markets/items",
-
+    auction: "https://developer-lostark.game.onstove.com/auctions/items",
     baseUrl: 'https://developer-lostark.game.onstove.com',
     armory: '/armories/characters/'
 }

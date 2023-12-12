@@ -16,6 +16,7 @@ export type kalinkCharacterData = {
     envList:       string,
     summary_thu:   string,
     summary_desc:  string,
+    link:          string,
     }
 
 export type chatroomData = {
@@ -57,4 +58,22 @@ export type kalinkReqData = {
     _csrf:      string;
     checksum:   string;
     receiver:   string;
+}
+
+
+
+
+export interface Cookie {
+    name: string,
+    value: string,
+    domain: string,
+    path: string,
+    expires: number,
+    size: number,
+    httpOnly: boolean,
+    secure: boolean,
+    session: boolean,
+    sameParty: boolean,
+    sourceScheme: string,
+    sourcePort: number
 }
