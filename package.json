@@ -26,7 +26,6 @@
     "@remote-kakao/core": "^2.0.0-alpha.3",
     "@types/cheerio": "^0.22.31",
     "@types/node-schedule": "^2.1.0",
-    "@types/puppeteer": "^7.0.4",
     "axios": "^1.4.0",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.1.3",
