@@ -1,8 +1,9 @@
 import { scheduleJob } from 'node-schedule';
-import { persistMarketData } from './utils/axiosLostarkApi';
-import { KakaoSession } from './utils/KakaoSession';
+//import { persistMarketData } from './utils/axiosLostarkApi';
 import 'dotenv/config'
+import { KakaoSession } from './utils/KakaoSession';
 
+/*
 scheduleJob("stuffApiCrawl", '0 15 * * *', async ()=>{
     console.log((new Date()).toLocaleString())
     console.log("item scrap start");
@@ -12,10 +13,10 @@ scheduleJob("stuffApiCrawl", '0 15 * * *', async ()=>{
     await persistMarketData(50000);
     await persistMarketData(40000, '전설');
 })
+*/
 
 
-/*
-scheduleJob("kakaoSession", '0 3,15 * * *', async ()=>{
+scheduleJob("kakaoSession", '*/10 * * * *', async ()=>{
     console.log((new Date()).toLocaleString())
     console.log("renew kakao session");
     const session = new KakaoSession();
@@ -26,13 +27,11 @@ scheduleJob("kakaoSession", '0 3,15 * * *', async ()=>{
         console.log("logged in.")
     }else{
         console.log("session expired.")
-        await session.setKakaoSession(process.env.kakao_id as string, process.env.kakao_password as string);
+        await session.setKakaoSession(process.env['kakao_id'] as string, process.env['kakao_password'] as string);
     }
-    session.desctruct();
+    await session.desctruct();
 
-
-    return
+    return;
 
 })
 
-*/

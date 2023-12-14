@@ -36,7 +36,10 @@ export const sendKakaoLink = async <T>(appKey: string, templateId: number, templ
         if(index % 2 === 0){
             parsedRawHeader[value] = '';
         }else{
-            parsedRawHeader[rawHeader[index-1]] = value;
+            let key = rawHeader[index-1];
+            if(key !== undefined){
+                parsedRawHeader[key] = value;
+            }
         }
     })
 
@@ -49,7 +52,10 @@ export const sendKakaoLink = async <T>(appKey: string, templateId: number, templ
         if(index % 2 === 0){
             parsedCsrfRawHeader[value] = '';
         }else{
-            parsedCsrfRawHeader[csrfRawHeader[index-1]] = value;
+            let key = rawHeader[index-1];
+            if(key !== undefined){
+                parsedRawHeader[key] = value;
+            }
         }
     })
 
@@ -65,12 +71,14 @@ export const sendKakaoLink = async <T>(appKey: string, templateId: number, templ
         }
     }
     if(csrfandChatResponse.headers !== undefined && csrfandChatResponse.headers["set-cookie"] !== undefined){
-        parsedCookie = cookieParser(csrfandChatResponse.headers["set-cookie"][0])
+        let headers = csrfandChatResponse.headers["set-cookie"]
+        
+        parsedCookie = cookieParser(headers[0] + "")
     }
     
     
     //CHECK CSRF TOKEN is valid
-    if (Object.getOwnPropertyNames(parsedCookie).findIndex((name)=>{ if(name === "_csrf") return true }) === -1) {
+    if (Object.getOwnPropertyNames(parsedCookie).findIndex((name)=>{ if(name === "_csrf") return true; return undefined; }) === -1) {
         console.log("no csrf token");
         return false;
     }
@@ -83,6 +91,7 @@ export const sendKakaoLink = async <T>(appKey: string, templateId: number, templ
         //make kakaolink data
         const trgtChat = (chatList.data.chats as chatroomData[]).find((chat)=>{
             if(chat.title === chatName) return true;
+            return undefined;
         })
         if(trgtChat === undefined){
             console.log(`no chatroom named ${chatName}`)

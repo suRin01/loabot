@@ -11,7 +11,7 @@ import { battleItemRecipeList, category, foodItemRecipeList, specialItemRecipeLi
 export const getCharacterData = async (username: string): Promise<CharacterInfo>=>{
         return await axios
         .get<CharacterInfo>(`${loaApiUrls.baseUrl}${loaApiUrls.armory}${encodeURI(username)}`, {
-            headers: { authorization: `bearer ${process.env.loaApiKey}` },
+            headers: { authorization: `bearer ${process.env['loaApiKey']}` },
         })
         .then((result)=>{
             return result.data;
@@ -50,7 +50,7 @@ export const getAuctionData = async (itemName: string, itemCode: number, sortTyp
             "PageNo": 0,
             "SortCondition": "ASC"
           }, {
-            headers: { authorization: `bearer ${process.env.loaApiKey}` }
+            headers: { authorization: `bearer ${process.env['loaApiKey']}` }
         })
         .then((result)=>{
             return result.data;
@@ -63,7 +63,7 @@ export const getAuctionData = async (itemName: string, itemCode: number, sortTyp
 export const getUserSubCharacter = async (username: string): Promise<CharacterPerServer[] | undefined> => {
     return await axios
         .get(`${loaApiUrls.characterPrefix}${encodeURI(username)}${loaApiUrls.characterPostfix}`, {
-            headers: { authorization: `bearer ${process.env.loaApiKey}` },
+            headers: { authorization: `bearer ${process.env['loaApiKey']}` },
         })
         .then((results) => {
             if (Array.isArray(results.data)) {
@@ -105,12 +105,13 @@ export const getUserSubCharacter = async (username: string): Promise<CharacterPe
 export const getTodayExportaionIsland = async ():Promise<SimpleIslandEvent[]>  => {
     const todayIslandList: CalenderEvent[] = await axios
         .get(loaApiUrls.weeklyCalender, {
-            headers: { authorization: `bearer ${process.env.loaApiKey}` },
+            headers: { authorization: `bearer ${process.env['loaApiKey']}` },
         })
         .then((results) => {
             return results.data
                 .filter((island: CalenderEvent) => {
                     if (island.CategoryName === "모험 섬") return island;
+                    return undefined;
                 })
                 .filter((island: CalenderEvent) => {
                     let isTodayCheck = false;
@@ -120,6 +121,7 @@ export const getTodayExportaionIsland = async ():Promise<SimpleIslandEvent[]>  =
                         }
                     })
                     if (isTodayCheck) return island;
+                    return undefined;
                 })
         });
     let result:SimpleIslandEvent[] = [];
@@ -140,12 +142,14 @@ export const getTodayExportaionIsland = async ():Promise<SimpleIslandEvent[]>  =
                 tempEventData.reward = "주화, 실링"
                 return true;
             }
+            return undefined;
         })
         if(tempEventData.reward === ""){
             tempEventData.reward = "실링"
         }
         tempEventData.startTime = event.StartTimes.map((time)=>{
-            if((new Date(time)).getDate() === (new Date).getDate()) return new Date(time)
+            if((new Date(time)).getDate() === (new Date).getDate()) return new Date(time);
+            return undefined;
         }).filter( x => x !== undefined) as Date[];
         result.push(tempEventData);
     })
@@ -155,28 +159,28 @@ export const getTodayExportaionIsland = async ():Promise<SimpleIslandEvent[]>  =
 export const getWeeklyAbyssGuardians = async ()=>{
     const weeklyAbyssGuardians: AbyssGuardians = await axios
     .get(loaApiUrls.weeklyAbyssGuardians, {
-        headers: { authorization: `bearer ${process.env.loaApiKey}` },
+        headers: { authorization: `bearer ${process.env['loaApiKey']}` },
     })
     .then((results) => {
         return results.data;
     });
     
-    return  Array.of(weeklyAbyssGuardians.Raids[0].Name, weeklyAbyssGuardians.Raids[1].Name, weeklyAbyssGuardians.Raids[2].Name)
+    return  Array.of(weeklyAbyssGuardians.Raids[0]?.Name, weeklyAbyssGuardians.Raids[1]?.Name, weeklyAbyssGuardians.Raids[2]?.Name)
 }
 
 
 export const getWeeklyAbyssDungeouns = async ()=>{
     const weeklyAbyssDungeons: AbyssDungeons[] = await axios
     .get(loaApiUrls.weeklyAbyssDungeons, {
-        headers: { authorization: `bearer ${process.env.loaApiKey}` },
+        headers: { authorization: `bearer ${process.env['loaApiKey']}` },
     })
     .then((results) => {
         return results.data;
     });
 
     return {
-        title: weeklyAbyssDungeons[0].AreaName,
-        areaList : Array.of(weeklyAbyssDungeons[0].Name, weeklyAbyssDungeons[1].Name)
+        title: weeklyAbyssDungeons[0]?.AreaName,
+        areaList : Array.of(weeklyAbyssDungeons[0]?.Name, weeklyAbyssDungeons[1]?.Name)
     }
 }
 
@@ -194,7 +198,7 @@ export const getMarketData = async (categoryCode: number, itemGrade: string | nu
       }
     const marketData: MarketStructure<MarketItem> = await axios
     .post(loaApiUrls.market, searchParam, {
-        headers: { authorization: `bearer ${process.env.loaApiKey}` },
+        headers: { authorization: `bearer ${process.env['loaApiKey']}` },
     })
     .then((results) => {
         return results.data;
@@ -257,7 +261,7 @@ export const dbStuffSearch = async(categort:number, name: string | undefined = u
                 lte: end
             },
             name: {
-                startsWith: name===undefined? undefined : `%${name}`
+                startsWith: name===undefined? '' : `%${name}`
             }
             ,
             category:{
@@ -332,12 +336,15 @@ export const itemCraftPrinceing = async(categoryCode:number)=>{
             const pricePerItem = bundlePrice / bundleCount;
             craftCost += pricePerItem * item.materialCount;
         })
-
+        let marketPrice = marketDataMap[itemName];
+        if(marketPrice === undefined){
+            return;
+        }
         return {
             name: recipe.itemName,
-            marketPrice: marketDataMap[itemName],
+            marketPrice: marketPrice,
             craftCost: (craftCost / craftBundleCount).toFixed(3),
-            profit: (chargeCalc(marketDataMap[itemName]) - craftCost/craftBundleCount).toFixed(3)
+            profit: (chargeCalc(marketPrice) - craftCost/craftBundleCount).toFixed(3)
         }
         
     })

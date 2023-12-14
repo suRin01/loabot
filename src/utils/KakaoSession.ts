@@ -8,12 +8,15 @@ export class KakaoSession {
     private cookieString:Protocol.Network.Cookie[] = [];
 
     private getBrowser = async ()=>{
-        if(this.browser === null){
-            this.browser = await puppeteer.launch({headless: "new",
-                                                    executablePath: '/usr/bin/chromium-browser',
-                                                    args: ['--no-sandbox', '--disable-setuid-sandbox']});
+        if(this.browser !== null){
             return this.browser;
         }
+        /*
+        this.browser = await puppeteer.launch({headless: false,
+                                                executablePath: '/usr/bin/chromium-browser',
+                                                args: ['--no-sandbox', '--disable-setuid-sandbox']});
+                                                */
+        this.browser = await puppeteer.launch({headless: false,});
         return this.browser;
     }
 
@@ -29,7 +32,7 @@ export class KakaoSession {
 
     public init = async ()=>{
         this.browser = await this.getBrowser();
-
+        
         const cookiesString = await fs.readFile(__dirname+'/../auth/cookie.txt');
         this.cookieString = JSON.parse(cookiesString.toString());
         return;
@@ -37,9 +40,18 @@ export class KakaoSession {
 
     public desctruct = async ()=>{
         if(this.browser !== null){
-            this.browser.close();
+            await this.browser.close();
+            return true;
         }
+
+        return true;
         
+    }
+
+    public saveCookie = async (cookie:string)=>{
+        await fs.writeFile(__dirname+'/../auth/cookie.txt', cookie);
+
+        return;
     }
 
     public checkCurrentCookie = async():Promise<boolean>=>{
@@ -63,10 +75,25 @@ export class KakaoSession {
         try {
             await page.waitForSelector("button[type=button].btn_email")
             console.log("current cookie is vaild")
-            console.log(await page.cookies())
+            let cookies = await page.cookies();
+            
+            if(cookies.length === 0){
+                return false;
+            }
+
+            let cookieString = "[";
+            cookieString += cookies.map((cookie)=>{return JSON.stringify(cookie)}).join(",");
+            cookieString += "]"
+
+
+            await this.saveCookie(cookieString);
+            console.log(cookieString);
+            console.log("saved.");
+
             return true;
         } catch (error) {
-            console.log("current cookie is invaild")
+            console.log("current cookie is invaild");
+            
             return false
         }
 

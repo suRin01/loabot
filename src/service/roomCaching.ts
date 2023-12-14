@@ -1,11 +1,19 @@
 import { Message } from "@remote-kakao/core";
 
 
-class RoomCacher {
+export class RoomCacher {
     private roomList:Message[] = [];
 
     public insertRoom = (room:Message)=>{
-        this.roomList.push(room);
+        let isReserved = this.roomList.find((reservedRoom)=>{
+            if(reservedRoom.room.id === room.room.id){
+                return reservedRoom;
+            }
+            return undefined;
+        })
+        if(isReserved === undefined){
+            this.roomList.push(room);
+        }
     }
 
     public getRoom = (roomName:string):Message=>{
@@ -13,6 +21,7 @@ class RoomCacher {
             if(room.room.name === roomName){
                 return room;
             }
+            return undefined;
         });
 
         if(searchedRoom === undefined){

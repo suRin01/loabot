@@ -139,7 +139,9 @@ export const cookieParser = (cookieString: string): Record<string, string> => {
             if (v[0] === '' || v[1] === undefined) {
                 return acc
             }
-            acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+            if(v[0]!== undefined){
+                acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+            }
             return acc;
         }, a);
     return cookies;

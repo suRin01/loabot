@@ -1,18 +1,19 @@
 #!/usr/bin/env -S ts-node
-import { Message, UDPServer } from '@remote-kakao/core'
+import { UDPServer } from '@remote-kakao/core'
 import LoggerPlugin from './plugins/logger';
 import path from 'node:path';
 import { functionSwithcer } from './functions';
 import 'dotenv/config'
 import { sendKakaoLink } from './utils/kakaoLink';
 import { kalinkCharacterData } from './types/messageTemplate';
+import { RoomCacher } from './service/roomCaching';
 
 //const cookie: string = '';
 const appKey: string = '66dd278aa59de80b4f87c6123a0e51c1';
 const templateId: number = 94749;
 
 const server = new UDPServer();
-let chatList: { chatHash: String; chatroomObj: Message }[] = []
+let roomCache:RoomCacher = new RoomCacher();
 
 server.usePlugin(LoggerPlugin, {
     logFilePath: path.join(process.cwd(), 'messages.log'),
@@ -20,6 +21,8 @@ server.usePlugin(LoggerPlugin, {
 });
 
 server.on('message', async (msg) => {
+    roomCache.insertRoom(msg);
+
     //disabling function in kakaotalk bot community chatroom
     if (msg.room.id === '18397704344550318') {
         if (msg.sender.hash !== 'f0908ef11700b68f37989c93559aaa6446e7c9313e385d89a705796282728787') {
@@ -27,12 +30,6 @@ server.on('message', async (msg) => {
         }
     }
 
-    if (chatList.find((room) => room.chatHash === msg.room.id) === undefined) {
-        chatList.push({
-            chatHash: msg.room.id,
-            chatroomObj: msg
-        });
-    }
 
     const args = msg.content.split(' ');
     const cmd = args.shift();
@@ -42,11 +39,10 @@ server.on('message', async (msg) => {
     //개발자전용 기능        b4ff6c12b7a8edf0c3ae28a7857f1cabbfb8fa17854fe6f0089499cb2acc95c7
     if (msg.sender.hash === 'b4ff6c12b7a8edf0c3ae28a7857f1cabbfb8fa17854fe6f0089499cb2acc95c7') {
         if (cmd === '++전체공지') {
-            chatList.forEach((room) => {
-                console.log(`${room.chatroomObj.room.name}에 전체 공지를 전송합니다.`);
+            roomCache.getAllRoom().forEach(room=>{
+                console.log(`${room.room.name}에 전체 공지를 전송합니다.`);
                 console.log(args.join(" "));
-
-                //server.sendText(msg.address, msg.app.userId, msg.app.packageName, room.chatroomObj.room.id, args.join(" "));
+                server.sendText(msg.address, msg.app.userId, msg.app.packageName, room.room.id, args.join(" "));
             })
             return;
         }

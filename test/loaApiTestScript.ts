@@ -1,7 +1,22 @@
-import { TCPServer } from "../src/service/tcpServer";
-import { getTodayExportaionIsland } from "../src/utils/axiosLostarkApi";
-import * as net from 'node:net'
+//import { TCPServer } from "../src/service/tcpServer";
+//import { getTodayExportaionIsland } from "../src/utils/axiosLostarkApi";
+import { KakaoSession } from "../src/utils/KakaoSession"
+//import * as net from 'node:net'
 
+(async ()=>{
+    console.log("test script about kakao session");
+
+    let session = new KakaoSession();
+    await session.init();
+
+    //session.setKakaoSession("soullog77@naver.com", "silverlistic97!");
+    await session.checkCurrentCookie();
+
+
+    //session.desctruct();
+
+    return;
+})();
 
 
 
@@ -22,7 +37,7 @@ import * as net from 'node:net'
     */
 
 
-
+    /*
     console.log("testing tcp server")
     const server = new TCPServer(9090);
 
@@ -34,6 +49,7 @@ import * as net from 'node:net'
     server.setPacketHandler(packetHandler);
 
     server.listen();
+    */
     /*
 
     // 서버 5000번 포트로 접속

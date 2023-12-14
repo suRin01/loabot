@@ -6,7 +6,7 @@ import { dbStuffSearch, getAuctionData, getCharacterData, getTodayExportaionIsla
 import { argCheck, argNumCheck, merchantTimeIndex, riceCalculator, weeklyProfitCalc } from "./utils/utils";
 import axios from "axios";
 import { korlarkResponse } from "./types/kloaApi";
-import { AccessoryTooltip, IndentStringGroup, ItemPartBox, ItemTitle, MultiTextBox, NameTagBox, SingleTextBox, TooltipHeader } from "./types/loaApiEquipTooltips";
+import { AccessoryTooltip, IndentStringGroup, ItemPartBox, TooltipHeader } from "./types/loaApiEquipTooltips";
 
 export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<messageTemplate[] | undefined> => {
     switch (msg) {
@@ -107,7 +107,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             const value = await itemCraftPrinceing(category.battleItem);
             let responseText = `오늘의 가격\n`;
             value.forEach((item)=>{
-                responseText += `\n${item.name}\n - 경매장가: ${item.marketPrice}골드, 개당 제작가: ${item.craftCost}골드, 개당 이득: ${item.profit}골드`
+                responseText += `\n${item?.name}\n - 경매장가: ${item?.marketPrice}골드, 개당 제작가: ${item?.craftCost}골드, 개당 이득: ${item?.profit}골드`
             })
             return [{
                 "type": "text",
@@ -119,7 +119,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             const value = await itemCraftPrinceing(category.food);
             let responseText = `오늘의 가격\n`;
             value.forEach((item)=>{
-                responseText += `\n${item.name}\n - 경매장가: ${item.marketPrice}골드, 개당 제작가: ${item.craftCost}골드, 개당 이득: ${item.profit}골드`
+                responseText += `\n${item?.name}\n - 경매장가: ${item?.marketPrice}골드, 개당 제작가: ${item?.craftCost}골드, 개당 이득: ${item?.profit}골드`
             })
             return [{
                 "type": "text",
@@ -131,7 +131,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             const value = await itemCraftPrinceing(category.enforceItem);
             let responseText = `오늘의 가격\n`;
             value.forEach((item)=>{
-                responseText += `\n${item.name}\n - 경매장가: ${item.marketPrice}골드, 개당 제작가: ${item.craftCost}골드, 개당 이득: ${item.profit}골드`
+                responseText += `\n${item?.name}\n - 경매장가: ${item?.marketPrice}골드, 개당 제작가: ${item?.craftCost}골드, 개당 이득: ${item?.profit}골드`
             })
             return [{
                 "type": "text",
@@ -161,7 +161,8 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
 
                 let header:Record<string, Object> = {}
                 elementNames.splice(0, 7).forEach((key)=>{
-                    header[key] = tooltips[key];
+                    let value = tooltips[key];
+                    if(value !== undefined) header[key] = value;
                 });
                 let itemDescription = "";
                 const FullHeader = header as TooltipHeader;
@@ -181,7 +182,8 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                     extractResult !== null ? itemDescription += `\n(${extractResult[1]}레벨)` : '(레벨 미표기)';
                 }
                 //세트 랩
-                const setLevelParse = /.{2} <.*?>(.+?)<\/.*?>/.exec((tooltips[itemFooter[0]] as ItemPartBox).value.Element_001);
+                let tooltipKey = itemFooter[0] + "";
+                const setLevelParse = /.{2} <.*?>(.+?)<\/.*?>/.exec((tooltips[tooltipKey] as ItemPartBox).value.Element_001);
                 if(setLevelParse !== null) itemDescription += ` (${setLevelParse[1]})`
 
                 //품질
@@ -205,8 +207,9 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                         const etcKeyList = Object.getOwnPropertyNames(etcTooltips.value["Element_000"].contentStr);
 
                         etcKeyList.forEach((etcKey)=>{
-                            const targetStr = etcTooltips.value["Element_000"].contentStr[etcKey].contentStr;
-                            const imgRemovedStr = targetStr.replace(/<img.*<\/img>/gmi, "");
+                            const targetStr = etcTooltips.value["Element_000"]?.contentStr[etcKey]?.contentStr;
+                            const imgRemovedStr = targetStr?.replace(/<img.*<\/img>/gmi, "");
+                            if(imgRemovedStr === undefined) return;
                             const activationCheck = /<font color='#(.{6})'>/i.exec(imgRemovedStr);
                             if(activationCheck === null) return;
                             if(activationCheck[1] === '787878') return;
@@ -271,7 +274,8 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
 
                 let header:Record<string, Object> = {}
                 elementNames.splice(0, 7).forEach((key)=>{
-                    header[key] = tooltips[key];
+                    let value = tooltips[key];
+                    if(value !== undefined) header[key] = value;
                 });
                 let itemDescription = "";
                 const FullHeader = header as TooltipHeader;
@@ -282,21 +286,22 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                     if(extractResult === null){
                         return;
                     }
+                    const equipmentName = extractResult[1] + "";
                     switch (true) {
-                        case extractResult[1].includes("머리") || extractResult[1].includes("투구") || extractResult[1].includes("모자"):
+                        case equipmentName.includes("머리") || equipmentName.includes("투구") || equipmentName.includes("모자"):
                             itemDescription += "머리: " 
                             break;
                     
-                        case extractResult[1].includes("견갑") || extractResult[1].includes("어깨"):
+                        case equipmentName.includes("견갑") || equipmentName.includes("어깨"):
                             itemDescription += "어깨: " 
                             break;
-                        case extractResult[1].includes("상의"):
+                        case equipmentName.includes("상의"):
                             itemDescription += "상의: " 
                             break;
-                        case extractResult[1].includes("하의"):
+                        case equipmentName.includes("하의"):
                             itemDescription += "하의: " 
                             break;
-                        case extractResult[1].includes("장갑"):
+                        case equipmentName.includes("장갑"):
                             itemDescription += "장갑: " 
                             break;
                         default:
@@ -355,7 +360,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             const title         = `${info.ArmoryProfile.CharacterClassName} / ${info.ArmoryProfile.ExpeditionLevel} / ${info.ArmoryProfile.TotalSkillPoint}`;
 
             const thumnail      = info.ArmoryProfile.CharacterImage === null ? "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb77pWc%2Fbtr9Ox1B2fy%2F7XrjsZ2fc3tBI4s4U3WN1K%2Fimg.png" : info.ArmoryProfile.CharacterImage ;
-            const summary       = `${info.ArmoryProfile.ItemMaxLevel} / ${info.ArmoryEquipment === null ? "장비없음" : info.ArmoryEquipment[0].Name}`;
+            const summary       = `${info.ArmoryProfile.ItemMaxLevel} / ${info.ArmoryEquipment === null ? "장비없음" : info.ArmoryEquipment[0]?.Name}`;
             const statList      = info.ArmoryProfile.Stats === null ? "만들어만 둔 캐릭" : info.ArmoryProfile.Stats.filter(x=> ["치명", "특화", "신속"].includes(x.Type)).map(stat => `${stat.Type}: ${stat.Value}`).join(", ");
 
             const summary_desc  = `레벨 / 무강`;
@@ -364,7 +369,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             const envList       = info.ArmoryEngraving === null ? "각인없음" : info.ArmoryEngraving.Effects.map(engrave => engrave.Name).join(", ");
             const gemList       = info.ArmoryGem === null ? "보석없음" : info.ArmoryGem.Gems.map( gem=> gem.Level ).join(", ");
             const tripodList    = info.ArmorySkills === null ? "스킬미장착" : info.ArmorySkills.filter(skill => skill.Level > 1).map(skill => skill.Tripods.filter(tripod => tripod.Level > 1)).flatMap(x => x).map(tripod=> tripod.Level).join(", ");
-            const description   = info.ArmoryCard === null ? "카드 미장착" : `${info.ArmoryCard.Effects[0].Items[info.ArmoryCard.Effects[0].Items.length-1].Name}: ${info.ArmoryCard.Effects[0].Items[info.ArmoryCard.Effects[0].Items.length-1].Description}`;
+            const description   = info.ArmoryCard === null ? "카드 미장착" : `${info.ArmoryCard?.Effects[0]?.Items[info.ArmoryCard?.Effects[0]?.Items?.length-1]?.Name}: ${info.ArmoryCard.Effects[0]?.Items[info.ArmoryCard.Effects[0]?.Items?.length-1]?.Description}`;
             const link = `char/${info.ArmoryProfile.CharacterName}`
             const templateArgs: kalinkCharacterData = {
                 thumnail,
@@ -474,7 +479,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
 
             return [{
                 "type": "text",
-                "body": `${gemPrices.Items[0].Name}: ${gemPrices.Items[0].AuctionInfo.BuyPrice} 골드`
+                "body": `${gemPrices.Items[0]?.Name}: ${gemPrices.Items[0]?.AuctionInfo.BuyPrice} 골드`
             }];
 
 
@@ -555,6 +560,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                         }else if(item.type === 2){
                             return item.content;
                         }
+                        return;
                         
                     }).join(", ")+ "\n"
                 }
@@ -573,6 +579,8 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             
         }
     }
+
+    return;
 
 }
 
