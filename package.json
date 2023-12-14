@@ -6,7 +6,10 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "cron": "ts-node src/cronJobs.ts",
-    "test": "ts-node test/loaApiTestScript.ts"
+    "test": "ts-node test/loaApiTestScript.ts",
+    "build": "npx tsc"
+
+
   },
   "author": "",
   "license": "ISC",
