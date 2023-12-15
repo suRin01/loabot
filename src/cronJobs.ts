@@ -1,9 +1,10 @@
 import { scheduleJob } from 'node-schedule';
-//import { persistMarketData } from './utils/axiosLostarkApi';
+import { persistMarketData } from './utils/axiosLostarkApi';
 import 'dotenv/config'
 import { KakaoSession } from './utils/KakaoSession';
+import moment from 'moment';
 
-/*
+
 scheduleJob("stuffApiCrawl", '0 15 * * *', async ()=>{
     console.log((new Date()).toLocaleString())
     console.log("item scrap start");
@@ -13,7 +14,13 @@ scheduleJob("stuffApiCrawl", '0 15 * * *', async ()=>{
     await persistMarketData(50000);
     await persistMarketData(40000, '전설');
 })
-*/
+
+
+scheduleJob("time ticking", '*/1 * * * *', async ()=>{
+    let nowDate = moment();
+    console.log("what time is it now?")
+    console.log(nowDate);
+})
 
 
 scheduleJob("kakaoSession", '*/10 * * * *', async ()=>{

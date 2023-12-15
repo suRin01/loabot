@@ -7,9 +7,8 @@
     "start": "ts-node src/index.ts",
     "cron": "ts-node src/cronJobs.ts",
     "test": "ts-node test/loaApiTestScript.ts",
+    "time": "ts-node test/timeTest.ts",
     "build": "npx tsc"
-
-
   },
   "author": "",
   "license": "ISC",
@@ -30,6 +29,7 @@
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.1.3",
     "express": "^4.18.2",
+    "moment": "^2.29.4",
     "node-html-parser": "^6.1.5",
     "node-schedule": "^2.1.1",
     "puppeteer": "^21.1.1"
