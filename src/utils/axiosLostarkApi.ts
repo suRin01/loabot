@@ -5,8 +5,9 @@ import { AuctionItem, AbyssDungeons, AbyssGuardians, CalenderEvent, CharacterInf
 import axios from 'axios';
 import { chargeCalc, isToday } from './utils';
 import { MarketItem } from '../types/loaApi'; 
-import { PrismaClient, stuff_price } from '@prisma/client';
+import { stuff_price } from '@prisma/client';
 import { battleItemRecipeList, category, foodItemRecipeList, specialItemRecipeList } from '../constants/strings';
+import { DatabaseConnection } from '../service/DatabaseConnection';
 
 export const getCharacterData = async (username: string): Promise<CharacterInfo>=>{
         return await axios
@@ -226,21 +227,32 @@ export const getMarkeFullPagetData = async (categoryCode: number, itemGrade: str
 
 }
 
-export const persistMarketData = async(categoryCode: number, itemGrade: string | null = null, itemName: string | null = null)=>{
+export const persistMarketData = async(categoryCode: number, itemGrade: string | null = null, itemName: string | null = null, inputId: string = "cron")=>{
+    let nowDate = new Date();
+    nowDate.setHours(nowDate.getHours() - nowDate.getTimezoneOffset()/60)
     const itemList = await getMarkeFullPagetData(categoryCode, itemGrade, "DESC", itemName);
 
-    const prisma = new PrismaClient();
-    await prisma.stuff_price.createMany({
-        data: itemList.map((item)=>{
-            return {
-                name: item.Name,
-                bundleCount: item.BundleCount,
-                previous_day_avg: item.YDayAvgPrice,
-                current_price: item.CurrentMinPrice,
-                input_id: "cron",
-                category: categoryCode,
-            }
+    const prisma = DatabaseConnection.getInstance();
+    
+    
+    let dataArray = [];
+    for(let index = 0, length = itemList.length ; index < length ; index++){
+        let item = itemList[index];
+        
+        dataArray.push({
+            name: item?.Name === undefined ? "" : item?.Name,
+            bundleCount: item?.BundleCount === undefined ? 0 : item?.BundleCount ,
+            previous_day_avg: item?.YDayAvgPrice === undefined ? 0 : item?.YDayAvgPrice ,
+            current_price: item?.CurrentMinPrice === undefined ? 0 : item?.CurrentMinPrice ,
+            input_id: inputId,
+            category: categoryCode,
+            input_dt: nowDate,
         })
+
+    }
+
+    await prisma.stuff_price.createMany({
+        data: dataArray,
     })
 
     return true;
@@ -248,22 +260,21 @@ export const persistMarketData = async(categoryCode: number, itemGrade: string |
 
 
 export const dbStuffSearch = async(categort:number, name: string | undefined = undefined)=>{
-    const today = new Date();
-    const start = new Date(today);
-    start.setHours(0);
-    const end = new Date(today);
-    end.setHours(23);
-    const prisma = new PrismaClient();
-    const stuffList = await prisma.stuff_price.findMany({
+    let nowDate = new Date();
+    nowDate.setHours(nowDate.getHours() - nowDate.getTimezoneOffset()/60);
+    nowDate.setMinutes(0, 0, 0);
+    const endDate = new Date(nowDate)
+    endDate.setHours(endDate.getHours() + 1);
+
+    const dbData = await DatabaseConnection.getInstance().stuff_price.findMany({
         where:{
-            input_dt:{
-                gte: start,
-                lte: end
+            input_dt: {
+               gte: nowDate,
+               lt: endDate,
             },
             name: {
                 startsWith: name===undefined? '' : `%${name}`
-            }
-            ,
+            },
             category:{
                 equals: categort
             }
@@ -273,8 +284,7 @@ export const dbStuffSearch = async(categort:number, name: string | undefined = u
         }
     })
 
-
-    return stuffList;
+    return dbData;
 }
 
 

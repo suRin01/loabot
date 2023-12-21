@@ -1,9 +1,12 @@
 //import { TCPServer } from "../src/service/tcpServer";
-//import { getTodayExportaionIsland } from "../src/utils/axiosLostarkApi";
+import { DatabaseConnection } from "../src/service/DatabaseConnection";
+import { dbStuffSearch, getTodayExportaionIsland, persistMarketData } from "../src/utils/axiosLostarkApi";
 import { KakaoSession } from "../src/utils/KakaoSession"
 //import * as net from 'node:net'
 
-(async ()=>{
+
+
+const cookieTest = async ()=>{
     console.log("test script about kakao session");
 
     let session = new KakaoSession();
@@ -14,15 +17,10 @@ import { KakaoSession } from "../src/utils/KakaoSession"
 
 
     //session.desctruct();
-
     return;
-})();
+}
 
-
-
-
-(async ()=>{
-    /*
+const expeditionTest = async ()=>{
     console.log("test script start")
 
     console.log("testing prokion")
@@ -34,64 +32,88 @@ import { KakaoSession } from "../src/utils/KakaoSession"
     })
 
     console.log(responseText)
-    */
+}
+
+const persistMarketDataTest = async ()=>{
+    console.log("item scrap start");
+    await persistMarketData(90000, null, null, "test");
+    await persistMarketData(70000, null, null, "test");
+    await persistMarketData(60000, null, null, "test");
+    await persistMarketData(50000, null, null, "test");
+    await persistMarketData(40000, '전설', null, "test");
+    
+    [90000, 70000, 60000, 50000, 40000].forEach(async (cat)=>{
+        const dbData = await dbStuffSearch(cat);
+        console.log(`category ${cat}: saved ${dbData.length} items.`);
+    })
+
+}
+
+const deleteTestData = async ()=>{
+    console.log("clean up test data");
+    await DatabaseConnection.getInstance().stuff_price.deleteMany({
+        where:{
+            input_id:{
+                equals: "test"
+            }
+        }
+    })
+}
 
 
-    /*
-    console.log("testing tcp server")
-    const server = new TCPServer(9090);
+const lookupPrevious1HourData = async ()=>{
+    let nowDate = new Date();
+    nowDate.setHours(nowDate.getHours() - nowDate.getTimezoneOffset()/60);
+    nowDate.setMinutes(0, 0, 0);
+    const endDate = new Date(nowDate)
+    endDate.setHours(endDate.getHours() + 1);
 
-    const packetHandler = (data: Buffer)=>{
-        console.log("client sent this message.")
-        console.log(data.toString());
-        server.broadcastmessage(data.toString() + " is dead")
-    }
-    server.setPacketHandler(packetHandler);
+    const dbData = await DatabaseConnection.getInstance().stuff_price.findMany({
+        where:{
+            input_dt: {
+               gte: nowDate,
+               lt: endDate,
+            },
+            input_id: {
+                equals: "test"
+            }
+        }
+    })
 
-    server.listen();
-    */
-    /*
+    console.log(`lookup test data count: ${dbData.length}`);
+}
 
-    // 서버 5000번 포트로 접속
-    var socket = net.connect({port : 9090});
-    socket.on('connect', function(){
-        console.log('connected to server!');
+
+
+
+
+
+(async ()=>{
+    const startKey = process.argv[2];
+    if(startKey !== undefined){
+        switch (startKey) {
+            case "cookie":
+                await cookieTest()
+                break;
         
-        // 1000ms의 간격으로 banana hong을 서버로 요청
-        setInterval(function(){
-            socket.write('banana hong!');
-        }, 1000);
-    });
+            case "exp":
+                await expeditionTest()
+                
+            break;
 
-    // 서버로부터 받은 데이터를 화면에 출력
-    socket.on('data', function(chunk){
-        console.log('recv:' + chunk);
-    });
-    // 접속이 종료됬을때 메시지 출력
-    socket.on('end', function(){
-        console.log('disconnected.');
-    });
-    // 에러가 발생할때 에러메시지 화면에 출력
-    socket.on('error', function(err){
-        console.log(err);
-    });
-    // connection에서 timeout이 발생하면 메시지 출력
-    socket.on('timeout', function(){
-        console.log('connection timeout.');
-    });
+            case "market":
+                await persistMarketDataTest();
+                await lookupPrevious1HourData();
+                await deleteTestData();
+            break;
+        
+            default:
+                await cookieTest()
+                await expeditionTest()
+                await persistMarketDataTest()
+                await deleteTestData();
+                break;
+        }
 
-    */
-
-    /*
-    setTimeout(() => {
-        server.setPacketHandler((data: Buffer)=>{
-            console.log("new handler here")
-            console.log(data.toString());
-            server.broadcastmessage(data.toString() + " is alive")
-    
-        });
-    }, 5000);
-    */
-    
-
-})()
+    }
+})();

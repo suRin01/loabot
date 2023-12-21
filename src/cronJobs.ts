@@ -5,7 +5,7 @@ import { KakaoSession } from './utils/KakaoSession';
 import moment from 'moment';
 
 
-scheduleJob("stuffApiCrawl", '0 15 * * *', async ()=>{
+scheduleJob("stuffApiCrawl", '0 * * * *', async ()=>{
     console.log((new Date()).toLocaleString())
     console.log("item scrap start");
     await persistMarketData(90000);
