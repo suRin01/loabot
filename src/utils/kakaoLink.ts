@@ -7,7 +7,7 @@ import Cheerio from "cheerio";
 import NodeBuffer from 'buffer';
 
 export const sendKakaoLink = async <T>(appKey: string, templateId: number, templateArgs: T, chatName:string): Promise<boolean>=>{
-    const cookiesString = await fs.readFile(__dirname+'/../auth/cookie.txt');
+    const cookiesString = await fs.readFile(process.env["INIT_CWD"]+'/cookie.txt');
     const cookieJar = JSON.parse(cookiesString.toString()) as Cookie[];
     const cookie = cookieJar.map((cookie)=>{
         return `${cookie.name}=${cookie.value};`
