@@ -46,7 +46,7 @@ export class KakaoSession {
     }
 
     public saveCookie = async (cookie:string)=>{
-        await fs.writeFile(__dirname+'/../auth/cookie.txt', cookie);
+        await fs.writeFile(process.env["INIT_CWD"]+'/cookie.txt', cookie);
 
         return;
     }
@@ -62,7 +62,7 @@ export class KakaoSession {
             isLandscape : false,
         });
 
-        const cookiesString = await fs.readFile(__dirname+'/../auth/cookie.txt');
+        const cookiesString = await fs.readFile(process.env["INIT_CWD"]+'/cookie.txt');
         if(cookiesString.byteLength !== 0){
             const cookies:[] = JSON.parse(cookiesString.toString());
             await page.setCookie(...cookies);
@@ -152,7 +152,7 @@ export class KakaoSession {
             console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             const cookies = await page.cookies();
             this.cookieString = cookies;
-            await fs.writeFile(__dirname+'/../auth/cookie.txt', JSON.stringify(cookies, null, 2));
+            await fs.writeFile(process.env["INIT_CWD"]+'/cookie.txt', JSON.stringify(cookies, null, 2));
 
             
             console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
