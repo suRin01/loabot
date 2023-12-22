@@ -5,7 +5,6 @@ import { KakaoSession } from "../src/utils/KakaoSession"
 //import * as net from 'node:net'
 
 
-
 const cookieTest = async ()=>{
     console.log("test script about kakao session");
 
@@ -102,7 +101,9 @@ const lookupPrevious1HourData = async ()=>{
 }
 
 
-
+const dirTest = ()=>{
+    console.log(process.env["INIT_CWD"]);
+}
 
 
 
@@ -126,6 +127,9 @@ const lookupPrevious1HourData = async ()=>{
                 await persistMarketDataTest();
                 await lookupPrevious1HourData();
                 await deleteTestData();
+            break;
+            case "dir":
+                dirTest()
             break;
         
             default:

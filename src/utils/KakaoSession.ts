@@ -12,8 +12,8 @@ export class KakaoSession {
             return this.browser;
         }
         
-        this.browser = await puppeteer.launch({headless: 'new', executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox', '--disable-setuid-sandbox']});
-        //this.browser = await puppeteer.launch({headless: false,});
+        //this.browser = await puppeteer.launch({headless: 'new', executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox', '--disable-setuid-sandbox']});
+        this.browser = await puppeteer.launch({headless: false,});
         return this.browser;
     }
 
@@ -30,7 +30,7 @@ export class KakaoSession {
     public init = async ()=>{
         this.browser = await this.getBrowser();
         
-        const cookiesString = await fs.readFile(__dirname+'/../auth/cookie.txt');
+        const cookiesString = await fs.readFile(process.env["INIT_CWD"]+'/cookie.txt');
         this.cookieString = JSON.parse(cookiesString.toString());
         return;
     }
