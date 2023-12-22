@@ -12,6 +12,7 @@ import { scheduleJob } from 'node-schedule';
 import { KakaoSession } from './utils/KakaoSession';
 
 //initalizing scheduling
+console.log("start cron jobs");
 scheduleJob("stuffApiCrawl", '0 * * * *', async ()=>{
     console.log((new Date()).toLocaleString())
     console.log("item scrap start");
@@ -46,6 +47,7 @@ scheduleJob("kakaoSession", '*/10 * * * *', async ()=>{
 
 
 //const cookie: string = '';
+console.log("start api server");
 const appKey: string = '66dd278aa59de80b4f87c6123a0e51c1';
 const templateId: number = 94749;
 
