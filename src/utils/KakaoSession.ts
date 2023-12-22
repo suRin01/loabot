@@ -12,8 +12,8 @@ export class KakaoSession {
             return this.browser;
         }
         
-        //this.browser = await puppeteer.launch({headless: 'new', executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox', '--disable-setuid-sandbox']});
-        this.browser = await puppeteer.launch({headless: false,});
+        this.browser = await puppeteer.launch({headless: 'new', executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox', '--disable-setuid-sandbox']});
+        //this.browser = await puppeteer.launch({headless: false,});
         return this.browser;
     }
 
