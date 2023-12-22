@@ -106,14 +106,17 @@ export class KakaoSession {
             hasTouch : false,
             isLandscape : false,
         });
-    
-        await page.goto('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fdevelopers.kakao.com%2Flogin%3Fcontinue%3Dhttps%253A%252F%252Fdevelopers.kakao.com%252F&lang=ko#login');
-        await page.click("input[type=checkbox].inp_choice");
-        await page.focus("input[type=text][name=loginId].tf_g");
-        await page.keyboard.type(userId)
-        await page.focus("input[type=password][name=password].tf_g");
-        await page.keyboard.type(userPassword)
-    
+        try{
+            await page.goto('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fdevelopers.kakao.com%2Flogin%3Fcontinue%3Dhttps%253A%252F%252Fdevelopers.kakao.com%252F&lang=ko#login');
+            await page.click("input[type=checkbox][name=saveSignedIn]");
+            await page.focus("input[type=text][name=loginId].tf_g");
+            await page.keyboard.type(userId)
+            await page.focus("input[type=password][name=password].tf_g");
+            await page.keyboard.type(userPassword)
+        }catch{
+            console.log("Element not found.");
+            return false;
+        }
         await page.click("button[type=submit].submit");
         let isLogin = false;
         console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
