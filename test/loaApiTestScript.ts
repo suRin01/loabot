@@ -20,6 +20,24 @@ const cookieTest = async ()=>{
     return;
 }
 
+const cookieRenew = async ()=>{
+    console.log("renew kakao session");
+    const session = new KakaoSession();
+    await session.init();
+
+    let isLogin = await session.checkCurrentCookie();
+    if(isLogin){
+        console.log("logged in.")
+    }else{
+        console.log("session expired.")
+        await session.setKakaoSession(process.env['kakao_id'] as string, process.env['kakao_password'] as string);
+    }
+    await session.desctruct();
+
+    return;
+
+}
+
 const expeditionTest = async ()=>{
     console.log("test script start")
 
@@ -96,6 +114,9 @@ const lookupPrevious1HourData = async ()=>{
                 await cookieTest()
                 break;
         
+            case "renew":
+                await cookieRenew()
+                break;
             case "exp":
                 await expeditionTest()
                 
