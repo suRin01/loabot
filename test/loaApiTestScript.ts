@@ -24,15 +24,21 @@ const cookieRenew = async ()=>{
     const session = new KakaoSession();
     await session.init();
 
-    let isLogin = await session.checkCurrentCookie();
+    const isLogin = await session.checkCurrentCookie();
+    console.log(`${isLogin} returned.`);
     if(isLogin){
         console.log("logged in.")
     }else{
         console.log("session expired.")
+        console.log("trying renew session with previous login data");
+        if(await session.loginWithPreviousSession()){
+            return;
+        }
+        
+        console.log("session has gone. log in with id/pw");
         await session.setKakaoSession(process.env['kakao_id'] as string, process.env['kakao_password'] as string);
     }
     await session.desctruct();
-
     return;
 
 }

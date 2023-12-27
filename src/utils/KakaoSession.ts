@@ -70,7 +70,7 @@ export class KakaoSession {
 
         await page.goto('https://developers.kakao.com/');
         try {
-            await page.waitForSelector("button[type=button].btn_email")
+            await page.waitForSelector("button[type=button].btn_email", {timeout: 5000})
             console.log("current cookie is vaild")
             let cookies = await page.cookies();
             
@@ -84,14 +84,60 @@ export class KakaoSession {
 
 
             await this.saveCookie(cookieString);
-            console.log(cookieString);
             console.log("saved.");
 
             return true;
         } catch (error) {
             console.log("current cookie is invaild");
+            return false;
+        }
+
+    }
+    public loginWithPreviousSession = async ():Promise<Boolean> =>{
+        const page = await this.getCookiedPage();
+        await page.setViewport({
+            width : 1920,
+            height : 1080,
+            deviceScaleFactor : 1,
+            isMobile : false,
+            hasTouch : false,
+            isLandscape : false,
+        });
+        try{
+            await page.goto('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fdevelopers.kakao.com%2Flogin%3Fcontinue%3Dhttps%253A%252F%252Fdevelopers.kakao.com%252F&lang=ko#login');
+            await page.waitForSelector("a.wrap_profile");
+            await page.click("a.wrap_profile:nth-child(1)");
+
+        }catch{
+            console.log("profile not found");
+            return false;
+        }
+        try{
+            await page.waitForSelector("button[type=button].btn_email", {timeout: 5000})
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            console.log("!                                                                                        !")
+            console.log("!                                     Login Success                                      !")
+            console.log("!                                                                                        !")
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            const cookies = await page.cookies();
+            this.cookieString = cookies;
+            await fs.writeFile(process.env["INIT_CWD"]+'/cookie.txt', JSON.stringify(cookies, null, 2));
             
-            return false
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            console.log("!                                                                                        !")
+            console.log("!                                     Cookie Saved                                       !")
+            console.log("!                                                                                        !")
+            console.log("!                             Location: ./auth/cookies.json                              !")
+            console.log("!                                                                                        !")
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return true;
+        }catch{
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            console.log("!                                                                                        !")
+            console.log("!                                       Login Fail                                       !")
+            console.log("!                                                                                        !")
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return false;
         }
 
     }
