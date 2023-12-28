@@ -248,7 +248,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             const access:Equipment[] = info.ArmoryEquipment.filter(element=>["목걸이", "귀걸이", "반지"].find(trgarr => trgarr === element.Type))
             access.forEach(equip=>{
                 JSON.parse(equip.Tooltip) as AccessoryTooltip;
-                responseText += `${equip.Type}: (${equip.Grade})${equip.Name} 품질 ${JSON.parse(equip.Tooltip)["Element_001"]["value"]["qualityValue"]}\n`;
+                responseText += `${equip.Grade} ${equip.Name}\n    품질 ${JSON.parse(equip.Tooltip)["Element_001"]["value"]["qualityValue"]}\n`;
                 
                 const content = JSON.stringify(JSON.parse(equip.Tooltip)["Element_006"]["value"]["Element_000"]["contentStr"]);
                 const matches = content.matchAll(/\[<FONT COLOR='\#.{6}'>(.{1,10})<\/FONT>] 활성도 \+(.)<BR>"/gm);
