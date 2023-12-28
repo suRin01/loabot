@@ -246,6 +246,12 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             const info: CharacterInfo = await getCharacterData(value);
 
             const access:Equipment[] = info.ArmoryEquipment.filter(element=>["목걸이", "귀걸이", "반지"].find(trgarr => trgarr === element.Type))
+            if(access.length === 0){
+                return [{
+                    "type": "text",
+                    "body": "착용중인 악세서리가 없습니다.",
+                },]
+            }
             access.forEach(equip=>{
                 JSON.parse(equip.Tooltip) as AccessoryTooltip;
                 responseText += `${equip.Grade} ${equip.Name}\n    품질 ${JSON.parse(equip.Tooltip)["Element_001"]["value"]["qualityValue"]}\n`;
