@@ -241,14 +241,21 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                 console.log(msgStrings.generalArgError);
                 return value;
             }
+            
             let responseText = `${value}님의 악세서리 정보입니다.\n`
             const info: CharacterInfo = await getCharacterData(value);
-            
+
             const access:Equipment[] = info.ArmoryEquipment.filter(element=>["목걸이", "귀걸이", "반지"].find(trgarr => trgarr === element.Type))
             access.forEach(equip=>{
                 JSON.parse(equip.Tooltip) as AccessoryTooltip;
-                console.log(JSON.stringify(equip));
-                `${equip.Type}: ${equip.Name}`
+                responseText += `${equip.Type}: (${equip.Grade})${equip.Name} 품질 ${JSON.parse(equip.Tooltip)["Element_001"]["value"]["qualityValue"]}\n`;
+                
+                const content = JSON.stringify(JSON.parse(equip.Tooltip)["Element_006"]["value"]["Element_000"]["contentStr"]);
+                const matches = content.matchAll(/\[<FONT COLOR='\#.{6}'>(.{1,10})<\/FONT>] 활성도 \+(.)<BR>"/gm);
+                for(const match of matches){
+                    responseText += `    ${match[1]} + ${match[2]} \n`
+                }
+
             })
 
             return [{
@@ -367,7 +374,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             const summary_thu   = `https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcaOUT2%2Fbtr5BMWV9S8%2F8W7XK23Jti8G5kzy3ZPlv1%2Fimg.png`;
             
             const envList       = info.ArmoryEngraving === null ? "각인없음" : info.ArmoryEngraving.Effects.map(engrave => engrave.Name).join(", ");
-            const gemList       = info.ArmoryGem === null ? "보석없음" : info.ArmoryGem.Gems.map( gem=> gem.Level ).join(", ");
+            const gemList       = info.ArmoryGem === null ? "-쌀-" : info.ArmoryGem.Gems.map( gem=> gem.Level ).join(", ");
             const tripodList    = info.ArmorySkills === null ? "스킬미장착" : info.ArmorySkills.filter(skill => skill.Level > 1).map(skill => skill.Tripods.filter(tripod => tripod.Level > 1)).flatMap(x => x).map(tripod=> tripod.Level).join(", ");
             const description   = info.ArmoryCard === null ? "카드 미장착" : `${info.ArmoryCard?.Effects[0]?.Items[info.ArmoryCard?.Effects[0]?.Items?.length-1]?.Name}: ${info.ArmoryCard.Effects[0]?.Items[info.ArmoryCard.Effects[0]?.Items?.length-1]?.Description}`;
             const link = `char/${info.ArmoryProfile.CharacterName}`

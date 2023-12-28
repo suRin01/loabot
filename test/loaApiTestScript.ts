@@ -1,9 +1,30 @@
 //import { TCPServer } from "../src/service/tcpServer";
 import { DatabaseConnection } from "../src/service/DatabaseConnection";
-import { dbStuffSearch, getTodayExportaionIsland, persistMarketData } from "../src/utils/axiosLostarkApi";
+import { CharacterInfo, Equipment } from "../src/types/loaApi";
+import { dbStuffSearch, getCharacterData, getTodayExportaionIsland, persistMarketData } from "../src/utils/axiosLostarkApi";
 import { KakaoSession } from "../src/utils/KakaoSession"
+import {AccessoryTooltip} from "../src/types/loaApiEquipTooltips"
 //import * as net from 'node:net'
 
+const accessoryTest = async (value:string = "1대대당직사령")=>{
+    let responseText = `${value}님의 악세서리 정보입니다.\n`
+    const info: CharacterInfo = await getCharacterData(value);
+
+    const access:Equipment[] = info.ArmoryEquipment.filter(element=>["목걸이", "귀걸이", "반지"].find(trgarr => trgarr === element.Type))
+    access.forEach(equip=>{
+        JSON.parse(equip.Tooltip) as AccessoryTooltip;
+        responseText += `${equip.Type}: (${equip.Grade})${equip.Name} 품질 ${JSON.parse(equip.Tooltip)["Element_001"]["value"]["qualityValue"]}\n`;
+        
+        const content = JSON.stringify(JSON.parse(equip.Tooltip)["Element_006"]["value"]["Element_000"]["contentStr"]);
+        const matches = content.matchAll(/\[<FONT COLOR='\#.{6}'>(.{1,10})<\/FONT>] 활성도 \+(.)<BR>"/gm);
+        for(const match of matches){
+            responseText += `    ${match[1]} + ${match[2]} \n`
+        }
+
+    })
+    console.log(responseText);
+
+}
 
 const cookieTest = async ()=>{
     console.log("test script about kakao session");
@@ -137,6 +158,10 @@ const dirTest = ()=>{
             case "dir":
                 dirTest()
             break;
+            case "acc":
+                accessoryTest()
+            break;
+
         
             default:
                 await cookieTest()
