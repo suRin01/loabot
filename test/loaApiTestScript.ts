@@ -4,7 +4,102 @@ import { CharacterInfo, Equipment } from "../src/types/loaApi";
 import { dbStuffSearch, getCharacterData, getTodayExportaionIsland, persistMarketData } from "../src/utils/axiosLostarkApi";
 import { KakaoSession } from "../src/utils/KakaoSession"
 import {AccessoryTooltip} from "../src/types/loaApiEquipTooltips"
-//import * as net from 'node:net'
+import axios from "axios";
+import { merchantTimeIndex } from "../src/utils/utils";
+import { korlarkResponse } from "../src/types/kloaApi";
+
+const merchantTest = async (command: string = "아만") => {
+    let targetServer: number | undefined = undefined;
+    let timeset = merchantTimeIndex((new Date()).getHours());
+    console.log(`timeset: ${timeset}`)
+    const value = command;
+    if (typeof value !== 'string') {
+        targetServer = 3
+    } else {
+        switch (value) {
+            case "루페온":
+                targetServer = 1;
+                break;
+            case "실리안":
+                targetServer = 2;
+                break;
+            case "아만":
+                targetServer = 3;
+                break;
+            case "아브렐슈드":
+                targetServer = 4;
+                break;
+            case "카단":
+                targetServer = 5;
+                break;
+            case "카마인":
+                targetServer = 6;
+                break;
+            case "카제로스":
+                targetServer = 7;
+                break;
+            case "니나브":
+                targetServer = 8;
+                break;
+            default:
+                targetServer = undefined;
+        }
+    }
+    let reusltText = `${value} 서버의 떠상 목록입니다.\n`;
+
+    if (timeset === 1) {
+        reusltText += "떠상 시간: 오전 4:00 ~ 오전 9:30\n\n";
+
+    } else if (timeset === 2) {
+        reusltText += "떠상 시간: 오전 10:00 ~ 오후 3:30\n\n";
+
+    } else if (timeset === 3) {
+        reusltText += "떠상 시간: 오후 4:00 ~ 오후 9:30\n\n";
+
+    } else if (timeset === 4) {
+        reusltText += "떠상 시간: 오후 10:00 ~ 오전 3:30\n\n";
+    }
+
+
+
+    const korlarkResult = await axios
+        .get<korlarkResponse>(`https://api.korlark.com/merchants?limit=15&server=${targetServer}`);
+
+    let isMerchantAvailablel = false;
+
+    korlarkResult.data.merchants.forEach((row) => {
+        console.log(merchantTimeIndex((new Date(row.created_at).getHours() + 9)%24))
+        if (timeset === merchantTimeIndex(((new Date(Date.parse(row.created_at))).getHours() + 9) % 24)) {
+            isMerchantAvailablel = true;
+            reusltText += "-" + row.continent + "-\n " + row.items.map((item) => {
+                if (item.type === 0) {
+                    return item.content + ' 카드';
+                } else if (item.type === 1) {
+                    if (item.content === "0") {
+                        return "영웅 호감도";
+                    } else if (item.content === "1") {
+                        return "전설 호감도";
+                    }
+                } else if (item.type === 2) {
+                    return item.content;
+                }
+                return;
+
+            }).join(", ") + "\n"
+        }
+    });
+    if (!isMerchantAvailablel) {
+        return [{
+            "type": "text",
+            "body": "kloa에 보고된 떠상이 없습니다."
+        }];
+    }
+
+    return [{
+        "type": "text",
+        "body": reusltText
+    }];
+}
 
 const accessoryTest = async (value:string = "1대대당직사령")=>{
     let responseText = `${value}님의 악세서리 정보입니다.\n`
@@ -160,6 +255,9 @@ const dirTest = ()=>{
             break;
             case "acc":
                 accessoryTest()
+            break;
+            case "mer":
+                merchantTest()
             break;
 
         
