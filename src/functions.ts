@@ -557,7 +557,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             .get<korlarkResponse>(`https://api.korlark.com/merchants?limit=15&server=${targetServer}`);
 
             let isMerchantAvailablel = false;
-
+            console.log(korlarkResult);
             korlarkResult.data.merchants.forEach((row)=>{
                 if(timeset === merchantTimeIndex(((new Date(Date.parse(row.created_at))).getHours() + 9 )% 24)){
                     isMerchantAvailablel = true;
