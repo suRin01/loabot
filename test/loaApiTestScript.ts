@@ -88,13 +88,14 @@ const merchantTest = async (command: string = "아만") => {
             }).join(", ") + "\n"
         }
     });
+    console.log(!isMerchantAvailablel)
     if (!isMerchantAvailablel) {
         return [{
             "type": "text",
             "body": "kloa에 보고된 떠상이 없습니다."
         }];
     }
-
+    console.log(reusltText)
     return [{
         "type": "text",
         "body": reusltText

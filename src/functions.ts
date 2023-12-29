@@ -557,8 +557,16 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             .get<korlarkResponse>(`https://api.korlark.com/merchants?limit=15&server=${targetServer}`);
 
             let isMerchantAvailablel = false;
-            console.log(korlarkResult);
+            console.log(korlarkResult.data);
+            console.log(new Date())
+            
+            console.log(merchantTimeIndex((new Date()).getHours()))
             korlarkResult.data.merchants.forEach((row)=>{
+                console.log(new Date(Date.parse(row.created_at)))
+                console.log(new Date(row.created_at))
+                console.log(((new Date(Date.parse(row.created_at))).getHours() + 9 )% 24)
+                console.log(merchantTimeIndex(((new Date(Date.parse(row.created_at))).getHours() + 9 )% 24))
+                console.log()
                 if(timeset === merchantTimeIndex(((new Date(Date.parse(row.created_at))).getHours() + 9 )% 24)){
                     isMerchantAvailablel = true;
                     reusltText += "-"+row.continent + "-\n " + row.items.map((item)=>{
