@@ -23,13 +23,22 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             break;
         }
 
+        case '확률': {
+            if(arg.length !== 0) return;
+            `${100 * Math.random()}%의 확률로 성공할거같은데용?`
+            return [{
+                "type": "text",
+                "body": "",
+            }]
+        }
+
 
         //just for Fun end
         case '명령어': {
             if(arg.length !== 0) return;
             return [{
                 "type": "text",
-                "body": "프로키온\n도가토\n도비스\nㅂㅂㄱ\n정보 _캐릭터명_\n부캐 _캐릭터명_\n배템\n특수\n음식\n재료\n경매장\n전각\n주급 _캐릭터명_\n장비 _캐릭터명_",
+                "body": "프로키온\n도가토\n도비스\nㅂㅂㄱ\n정보 _캐릭터명_\n부캐 _캐릭터명_\n경매장\n전각\n주급 _캐릭터명_\n장비 _캐릭터명_\n악세 _캐릭터명_\n초월 _캐릭터명_",
             }]
         }
         case '프로키온': {
@@ -79,6 +88,18 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                 "body": responseText,
             },]
         }
+        case '++재료저장': {
+            await persistMarketData(90000);
+            await persistMarketData(70000);
+            await persistMarketData(60000);
+            await persistMarketData(50000);
+            await persistMarketData(40000, '전설');
+            return [{
+                "type": "text",
+                "body": "ok",
+            },]
+        }
+        /*
         case '재료': {
             if(arg.length !== 0) return;
            const value = await dbStuffSearch(category.ingreItem);
@@ -89,17 +110,6 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             return [{
                 "type": "text",
                 "body": responseText,
-            },]
-        }
-        case '++재료저장': {
-            await persistMarketData(90000);
-            await persistMarketData(70000);
-            await persistMarketData(60000);
-            await persistMarketData(50000);
-            await persistMarketData(40000, '전설');
-            return [{
-                "type": "text",
-                "body": "ok",
             },]
         }
         case '배템': {
@@ -138,6 +148,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                 "body": responseText,
             },]
         }
+        */
         case '아바타': {
 
             break;

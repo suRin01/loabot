@@ -230,32 +230,38 @@ export const getMarkeFullPagetData = async (categoryCode: number, itemGrade: str
 export const persistMarketData = async(categoryCode: number, itemGrade: string | null = null, itemName: string | null = null, inputId: string = "cron")=>{
     let nowDate = new Date();
     nowDate.setHours(nowDate.getHours() - nowDate.getTimezoneOffset()/60)
-    const itemList = await getMarkeFullPagetData(categoryCode, itemGrade, "DESC", itemName);
+    try {
+        const itemList = await getMarkeFullPagetData(categoryCode, itemGrade, "DESC", itemName);
 
-    const prisma = DatabaseConnection.getInstance();
-    
-    
-    let dataArray = [];
-    for(let index = 0, length = itemList.length ; index < length ; index++){
-        let item = itemList[index];
+        const prisma = DatabaseConnection.getInstance();
         
-        dataArray.push({
-            name: item?.Name === undefined ? "" : item?.Name,
-            bundleCount: item?.BundleCount === undefined ? 0 : item?.BundleCount ,
-            previous_day_avg: item?.YDayAvgPrice === undefined ? 0 : item?.YDayAvgPrice ,
-            current_price: item?.CurrentMinPrice === undefined ? 0 : item?.CurrentMinPrice ,
-            input_id: inputId,
-            category: categoryCode,
-            input_dt: nowDate,
+        
+        let dataArray = [];
+        for(let index = 0, length = itemList.length ; index < length ; index++){
+            let item = itemList[index];
+            
+            dataArray.push({
+                name: item?.Name === undefined ? "" : item?.Name,
+                bundleCount: item?.BundleCount === undefined ? 0 : item?.BundleCount ,
+                previous_day_avg: item?.YDayAvgPrice === undefined ? 0 : item?.YDayAvgPrice ,
+                current_price: item?.CurrentMinPrice === undefined ? 0 : item?.CurrentMinPrice ,
+                input_id: inputId,
+                category: categoryCode,
+                input_dt: nowDate,
+            })
+
+        }
+
+        await prisma.stuff_price.createMany({
+            data: dataArray,
         })
 
+        return true;
+    } catch (error) {
+        console.log("error occured during scrapping item list.");
     }
-
-    await prisma.stuff_price.createMany({
-        data: dataArray,
-    })
-
-    return true;
+    return false;
+    
 }
 
 

@@ -59,8 +59,8 @@ export const riceCalculator = (value: number) => {
     const eightMemberParty = value * 133 / 160;
     return [{
         "type": "text",
-        "body": "8인 입찰가: " + eightMemberParty.toFixed() + "골드\n8인 추천 입찰가: " + (eightMemberParty * 10 / 11 + 1).toFixed() + "골드"
-            + "\n4인 입찰가: " + fourMemberParty.toFixed() + "골드\n4인 추천 입찰가: " + (fourMemberParty * 10 / 11 + 1).toFixed() + "골드"
+        "body": "8인 입찰가: " + eightMemberParty.toFixed() + " 골드\n8인 추천 입찰가: " + (eightMemberParty * 10 / 11 + 1).toFixed() + " 골드"
+            + "\n4인 입찰가: " + fourMemberParty.toFixed() + " 골드\n4인 추천 입찰가: " + (fourMemberParty * 10 / 11 + 1).toFixed() + " 골드"
     }]
 }
 

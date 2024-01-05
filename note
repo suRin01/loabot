@@ -165,3 +165,37 @@ console.log(recipeList);
 51000 기타 재료
 
 */
+
+
+
+                                           assistant-1704261767557
+https://william.wow.wrtn.ai/chat/anonymous/assistant-1704261767557?model=gpt3.5&isChocoChip=false&platform=web&user=nobody@wrtn.io
+
+
+post william.wow.wrth.ai
+body
+{"message":"안안녕"}
+
+response:
+{"result":"SUCCESS","data":"assistant-1704261767557"}
+
+
+get https://william.wow.wrtn.ai/chat/anonymous/${post-result.data}?model=gpt3.5&isChocoChip=false&platform=web&user=nobody@wrtn.io
+
+{
+    "result":"SUCCESS",
+    "data":{
+        "type":"Message",
+        "role":"assistant",
+        "model":"GPT3.5",
+        "meta":{
+            "platform":"web",
+            "williamRequestId":"1f967556-96fe-47e9-953b-5721fa4ad888"
+            },
+        "content":"안녕하세요! 어떤 도움이 필요하신가요? 저에게 원하시는 정보나 질문이 있으신가요? 😊",
+        "status":"end",
+        "_id":"6594f888072df45de1b0d4da",
+        "createdAt":"2024-01-03T06:02:48.468Z",
+        "updatedAt":"2024-01-03T06:02:48.468Z"
+    }
+}

@@ -2,7 +2,7 @@
 Device.acquireWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, '');
 var scriptName = 'udpbot';
 var config = {
-    address: '192.168.0.28',
+    address: '192.168.0.30',
     port: 7050,
     packageNames: ['com.kakao.talk'],
     userIds: [0],
@@ -22,6 +22,7 @@ var replyActions = new Map();
 var profileImages = new Map();
 var roomIcons = new Map();
 
+var roomList = [];
 
 function getBytes(str) {
     return new java.lang.String(str).getBytes();
@@ -45,22 +46,22 @@ var receiveMessage = function (msg) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
     var _q = JSON.parse(msg), event = _q.event, data = _q.data, session = _q.session;
     function sendReply(data) {
-        return sendEvent("reply:".concat(session), data);
+        if(session !== undefined){
+            return sendEvent("reply:".concat(session), data);
+        }
     }
     Object.keys(RKPlugins).map(function (key) {
         return RKPlugins[key].onEvent({ event: event, data: data, session: session }, sendReply);
     });
     switch (event) {
         case 'send_text':
-            Log.d(data.text, false);
             // void 0 === undefined
             if (((_a = data.userId) === null || _a === void 0 ? void 0 : _a.toString()) &&
                 data.packageName &&
                 data.roomId &&
                 data.text) {
                 var action = (_d = (_c = (_b = replyActions.get(Number(data.userId))) === null || _b === void 0 ? void 0 : _b.get(data.packageName.toString())) === null || _c === void 0 ? void 0 : _c.get(data.roomId.toString())) === null || _d === void 0 ? void 0 : _d[1];
-                
-                
+
                 if (action) {
                     var intent = new android.content.Intent();
                     var bundle = new android.os.Bundle();
@@ -83,8 +84,8 @@ var receiveMessage = function (msg) {
             break;
         case 'kakao_link':
             sendReply(true);
-            Log.d(data.text, false);
-            Log.d(data.roomId, false);
+            //Log.d(data.text, false);
+            //Log.d(data.roomId, false);
             try {
                 Kakao.share(data.roomId, {
                     type: 1,
@@ -141,7 +142,7 @@ var thread = new java.lang.Thread({
         while (true) {
             socket.receive(inPacket);
             var message = decodeURIComponent(String(new java.lang.String(inPacket.getData(), inPacket.getOffset(), inPacket.getLength())));
-            Log.d(message);
+            //Log.d(message);
             receiveMessage(message);
         }
     },
@@ -204,6 +205,16 @@ function onNotificationPosted(sbn) {
             if (!((_t = (_s = replyActions.get(userId)) === null || _s === void 0 ? void 0 : _s.get(packageName)) === null || _t === void 0 ? void 0 : _t.has(roomId)))
                 (_v = (_u = replyActions
                     .get(userId)) === null || _u === void 0 ? void 0 : _u.get(packageName)) === null || _v === void 0 ? void 0 : _v.set(roomId, [readAction !== null && readAction !== void 0 ? readAction : actions[1], action]);
+            const isExist = roomList.find(room => {
+                if(room["name"] === roomName){
+                    return true;
+                }
+                return  false;
+            })
+            if(isGroupChat === true && isExist === undefined){
+                roomList.push({ name: roomName, id: roomId, isGroupChat: isGroupChat })
+            }
+            
             onMessage.call(null, {
                 room: { name: roomName, id: roomId, isGroupChat: isGroupChat },
                 id: logId,
@@ -213,11 +224,30 @@ function onNotificationPosted(sbn) {
                 time: time,
                 app: { packageName: packageName, userId: userId },
             });
+            if(roomId === "18387943060299867" && isGroupChat === false && content.startsWith("+++공지")){
+                Log.d("broadcasting start -");
+                roomList.forEach((roomData)=>{
+                    receiveMessage(JSON.stringify({
+                        "event":"send_text",
+                        "data":
+                            {
+                                "userId":0,
+                                "packageName":"com.kakao.talk",
+                                "roomId":roomData["id"],
+                                "text": content.replace("+++공지 ", "")
+                            }
+                    }));
+                    Log.d("broadcasting: " + roomData["name"]);
+                })
+                Log.d("broadcasting done.");
+            }
+            
         }
         else if (['read', '읽음'].includes(action.title.toLowerCase())) {
             readAction = action;
             com.xfl.msgbot.application.service.NotificationListener.Companion.setMarkAsRead(packageName, roomName, action);
         }
+
     }
 }
 

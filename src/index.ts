@@ -75,17 +75,6 @@ server.on('message', async (msg) => {
     if (cmd === undefined) {
         return;
     }
-    //개발자전용 기능        b4ff6c12b7a8edf0c3ae28a7857f1cabbfb8fa17854fe6f0089499cb2acc95c7
-    if (msg.sender.hash === 'b4ff6c12b7a8edf0c3ae28a7857f1cabbfb8fa17854fe6f0089499cb2acc95c7') {
-        if (cmd === '++전체공지') {
-            roomCache.getAllRoom().forEach(room=>{
-                console.log(`${room.room.name}에 전체 공지를 전송합니다.`);
-                console.log(args.join(" "));
-                server.sendText(msg.address, msg.app.userId, msg.app.packageName, room.room.id, args.join(" "));
-            })
-            return;
-        }
-    }
     try {
         const responseTexts = await functionSwithcer(cmd, ...args);
         if (responseTexts === undefined) return;
