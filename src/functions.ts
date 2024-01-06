@@ -99,7 +99,6 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                 "body": "ok",
             },]
         }
-        /*
         case '재료': {
             if(arg.length !== 0) return;
            const value = await dbStuffSearch(category.ingreItem);
@@ -148,7 +147,6 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                 "body": responseText,
             },]
         }
-        */
         case '아바타': {
 
             break;
