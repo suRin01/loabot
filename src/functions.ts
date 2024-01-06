@@ -24,11 +24,11 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
         }
 
         case '확률': {
-            if(arg.length !== 0) return;
-            `${100 * Math.random()}%의 확률로 성공할거같은데용?`
+            if(arg.length === 0) return;
+            
             return [{
                 "type": "text",
-                "body": "",
+                "body": `${100 * Math.random()}%의 확률로 성공할거같은데용?`,
             }]
         }
 
