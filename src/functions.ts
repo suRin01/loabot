@@ -508,6 +508,19 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             break;
         }
 
+        case '당직봇': {
+            const value = argCheck(arg.join(" ") === "" ? undefined : arg.join(" "), msgStrings.generalArgError);
+            if (typeof value !== 'string') {
+                return value;
+            }
+
+            console.log([msg, value].join(" "))
+
+
+
+            break;
+        }
+
         case '떠상':{
             let targetServer:number|undefined = undefined;
             let timeset = merchantTimeIndex(((new Date()).getHours()+9)%24);
