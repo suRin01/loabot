@@ -537,7 +537,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                 data : data
             };
             const result = await axios(config);
-            console.log(result);
+            console.log(result.data);
 
 
             break;
