@@ -537,9 +537,12 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                 data : data
             };
             const result = await axios(config);
-            console.log(result.data);
-
-
+            const responseText = result.data.candidates[0]?.content?.parts[0]?.text || '';
+            console.log(responseText);
+            return [{
+                "type": "text",
+                "body": `아래의 내용은 LLM 모델을 바탕으로 생성되었으며, 신뢰할수 없는 데이터가 포함될 수도 있습니다.\n\n${responseText}`
+            }];
             break;
         }
 
