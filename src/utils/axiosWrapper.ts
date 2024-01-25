@@ -21,6 +21,7 @@ export const axiosWrapper = <T>(method: "POST" | "GET", url:string, cookie?:stri
             if (error.response.status === 302) {
                 resolve(error)
             }
+            console.log(error);
             reject("error found")
         })
     })
