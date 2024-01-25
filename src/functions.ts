@@ -541,7 +541,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             console.log(responseText);
             return [{
                 "type": "text",
-                "body": `아래의 내용은 LLM 모델을 바탕으로 생성되었으며, 신뢰할수 없는 데이터가 포함될 수도 있습니다.\n\n${responseText}`
+                "body": `${responseText}\n${"\u200b".repeat(500)}위의 내용은 LLM 모델을 바탕으로 생성되었으며, 신뢰할수 없는 데이터가 포함될 수도 있습니다.`
             }];
             break;
         }
