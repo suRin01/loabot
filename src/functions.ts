@@ -7,6 +7,8 @@ import { argCheck, argNumCheck, merchantTimeIndex, riceCalculator, weeklyProfitC
 import axios from "axios";
 import { korlarkResponse } from "./types/kloaApi";
 import { AccessoryTooltip, IndentStringGroup, ItemPartBox, TooltipHeader } from "./types/loaApiEquipTooltips";
+import { axiosWrapper } from "./utils/axiosWrapper";
+import { env } from "process";
 
 export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<messageTemplate[] | undefined> => {
     switch (msg) {
@@ -516,6 +518,19 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
 
             console.log([msg, value].join(" "))
 
+            const data = {
+                "contents":[
+                    {
+                        "parts":[
+                            {
+                                "text":[msg, value].join(" ")
+                            }
+                        ]
+                    }
+                ]
+            }
+            const result = await axiosWrapper("POST", `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env['GEMINI_Key']}`, undefined, JSON.stringify(data))
+            console.log(result);
 
 
             break;
