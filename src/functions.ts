@@ -1,5 +1,4 @@
 import 'dotenv/config'
-
 import { stuff_price } from "@prisma/client";
 import { category, msgStrings } from "./constants/strings";
 import { CharacterInfo, Equipment } from "./types/loaApi";
@@ -9,7 +8,6 @@ import { argCheck, argNumCheck, merchantTimeIndex, riceCalculator, weeklyProfitC
 import axios from "axios";
 import { korlarkResponse } from "./types/kloaApi";
 import { AccessoryTooltip, IndentStringGroup, ItemPartBox, TooltipHeader } from "./types/loaApiEquipTooltips";
-import { axiosWrapper } from "./utils/axiosWrapper";
 
 export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<messageTemplate[] | undefined> => {
     switch (msg) {
@@ -517,20 +515,28 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                 return value;
             }
 
-            console.log([msg, value].join(" "))
-
-            const data = {
-                "contents":[
+            const data = JSON.stringify({
+                "contents": [
+                {
+                    "parts": [
                     {
-                        "parts":[
-                            {
-                                "text":[msg, value].join(" ")
-                            }
-                        ]
+                        "text": [msg, value].join(" ")
                     }
+                    ]
+                }
                 ]
-            }
-            const result = await axiosWrapper("POST", `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env['GEMINI_Key']}`, undefined, data);
+            });
+              
+            let config = {
+                method: 'post',
+                maxBodyLength: Infinity,
+                url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env["GEMINI_KEY"]}`,
+                headers: { 
+                'Content-Type': 'application/json'
+                },
+                data : data
+            };
+            const result = await axios(config);
             console.log(result);
 
 
