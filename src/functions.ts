@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import { stuff_price } from "@prisma/client";
 import { category, msgStrings } from "./constants/strings";
 import { CharacterInfo, Equipment } from "./types/loaApi";
@@ -8,7 +10,6 @@ import axios from "axios";
 import { korlarkResponse } from "./types/kloaApi";
 import { AccessoryTooltip, IndentStringGroup, ItemPartBox, TooltipHeader } from "./types/loaApiEquipTooltips";
 import { axiosWrapper } from "./utils/axiosWrapper";
-import { env } from "process";
 
 export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<messageTemplate[] | undefined> => {
     switch (msg) {
