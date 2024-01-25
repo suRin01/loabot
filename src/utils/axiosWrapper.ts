@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios"
 
-export const axiosWrapper = (method: "POST" | "GET", url:string, cookie?:string, data?: string): Promise<AxiosResponse>=>{
+export const axiosWrapper = <T>(method: "POST" | "GET", url:string, cookie?:string, data?: T): Promise<AxiosResponse>=>{
     return new Promise((resolve, reject) => {
         const config ={
             method,

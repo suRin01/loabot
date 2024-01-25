@@ -530,7 +530,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
                     }
                 ]
             }
-            const result = await axiosWrapper("POST", `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env['GEMINI_Key']}`, undefined, JSON.stringify(data))
+            const result = await axiosWrapper("POST", `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env['GEMINI_Key']}`, undefined, data);
             console.log(result);
 
 
