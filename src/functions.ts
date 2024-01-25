@@ -530,7 +530,7 @@ export const functionSwithcer = async (msg: string, ...arg: string[]): Promise<m
             let config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env["GEMINI_KEY"]}`,
+                url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env["GEMINI_Key"]}`,
                 headers: { 
                 'Content-Type': 'application/json'
                 },
