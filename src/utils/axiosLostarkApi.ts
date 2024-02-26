@@ -39,7 +39,7 @@ export const getAuctionData = async (itemName: string, itemCode: number, sortTyp
                 "FirstOption": null,
                 "SecondOption": null,
                 "MinValue": null,
-                "MaxValue": null
+                "MaxValue": null                                                         
               }
             ],
             "Sort": sortType,

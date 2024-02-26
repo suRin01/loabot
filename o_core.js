@@ -131,7 +131,7 @@ function onStartCompile() {
 }
 thread.start();
 function onNotificationPosted(sbn) {
-    Log.d("노티 확인 완료");0:1
+    Log.d("노티 확인 완료");
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
     var packageName = sbn.getPackageName();
     var userId = sbn.getUser().hashCode();
