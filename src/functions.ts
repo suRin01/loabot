@@ -259,7 +259,10 @@ export const functionSwithcer = async (
         }
 
         //상재
-        if ((FullHeader.Element_005 as SingleTextBox)?.value !== undefined) {
+        if (
+          (FullHeader.Element_005 as SingleTextBox)?.value !== undefined &&
+          (FullHeader.Element_005 as SingleTextBox)?.value.includes("상급 재련")
+        ) {
           let upperReforgeString = (
             FullHeader.Element_005 as SingleTextBox
           )?.value
