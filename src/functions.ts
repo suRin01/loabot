@@ -270,7 +270,7 @@ export const functionSwithcer = async (
           )?.value
             .replace(/<.*?>/gi, "")
             .replace(/\[.*?\]/gi, "");
-          itemDescription += ` 상재: ${upperReforgeString}단계`;
+          itemDescription += ` 상재 ${upperReforgeString}`;
         }
 
         //엘릭서, 엘릭서 활성화, 초월
