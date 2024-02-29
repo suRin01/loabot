@@ -693,50 +693,50 @@ export const functionSwithcer = async (
       break;
     }
 
-    case "당직봇": {
-      const value = argCheck(
-        arg.join(" ") === "" ? undefined : arg.join(" "),
-        msgStrings.generalArgError
-      );
-      if (typeof value !== "string") {
-        return value;
-      }
+    // case "당직봇": {
+    //   const value = argCheck(
+    //     arg.join(" ") === "" ? undefined : arg.join(" "),
+    //     msgStrings.generalArgError
+    //   );
+    //   if (typeof value !== "string") {
+    //     return value;
+    //   }
 
-      const data = JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: [msg, value].join(" "),
-              },
-            ],
-          },
-        ],
-      });
+    //   const data = JSON.stringify({
+    //     contents: [
+    //       {
+    //         parts: [
+    //           {
+    //             text: [msg, value].join(" "),
+    //           },
+    //         ],
+    //       },
+    //     ],
+    //   });
 
-      let config = {
-        method: "post",
-        maxBodyLength: Infinity,
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env["GEMINI_Key"]}`,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: data,
-      };
-      const result = await axios(config);
-      const responseText =
-        result.data.candidates[0]?.content?.parts[0]?.text || "";
-      console.log(responseText);
-      return [
-        {
-          type: "text",
-          body: `${responseText}\n${"\u200b".repeat(
-            500
-          )}위의 내용은 LLM 모델을 바탕으로 생성되었으며, 신뢰할수 없는 데이터가 포함될 수도 있습니다.`,
-        },
-      ];
-      break;
-    }
+    //   let config = {
+    //     method: "post",
+    //     maxBodyLength: Infinity,
+    //     url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env["GEMINI_Key"]}`,
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     data: data,
+    //   };
+    //   const result = await axios(config);
+    //   const responseText =
+    //     result.data.candidates[0]?.content?.parts[0]?.text || "";
+    //   console.log(responseText);
+    //   return [
+    //     {
+    //       type: "text",
+    //       body: `${responseText}\n${"\u200b".repeat(
+    //         500
+    //       )}위의 내용은 LLM 모델을 바탕으로 생성되었으며, 신뢰할수 없는 데이터가 포함될 수도 있습니다.`,
+    //     },
+    //   ];
+    //   break;
+    // }
 
     case "떠상": {
       let targetServer: number | undefined = undefined;
