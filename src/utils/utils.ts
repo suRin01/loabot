@@ -128,7 +128,7 @@ export const weeklyProfitCalc = (itemLevel: number): number => {
   } else if (1630 <= itemLevel && itemLevel < 1640) {
     return 74000;
   } else if (1620 <= itemLevel && itemLevel < 1630) {
-    return 37500;
+    return 42000;
   } else if (1610 <= itemLevel && itemLevel < 1620) {
     return 32000;
   } else if (1600 <= itemLevel && itemLevel < 1610) {
